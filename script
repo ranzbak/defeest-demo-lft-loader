@@ -1,0 +1,19 @@
+
+# First part contains the master demo routine and the music.
+# Spindle automatically jumps to the load address of the first file listed
+# here, unless you specify an entry point with the -e option.
+
+# The main loader 'script'
+defeest-screen-fill/Screenfill.prg            
+
+# Defeest-intro memory map
+# $3000-$2fff Sprites
+# $3000-$3403 Unnamed
+# $4000-$445d Main Program
+# $4500-$4518 Data
+defeest-intro/Movesprite.prg         3000 2 404
+defeest-intro/Movesprite.prg         4000 1002 45f
+defeest-intro/Movesprite.prg         4500 1502 19
+defeest-intro/Circus_Syphilis.sid    1000 7e
+
+# Next effect?

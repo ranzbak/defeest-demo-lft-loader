@@ -1,0 +1,9 @@
+.label scrcnt=$5101
+.label loop_defeest=$5012
+.label wcnt=$5102
+.label rolloop=$5021
+.label dtext=$509f
+.label scroffset=$504c
+.label loop_text=$5017
+.label begin=$5000
+.label charcnt=$5100
