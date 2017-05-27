@@ -3,7 +3,7 @@
 //* Create and move a simple sprite x,y           *
 //*************************************************
 
-* = $4500 "Data"		
+* = $2500 "Data"		
 // Animation vars
 fcount:  .byte 0 // Frame counter
 pos0:    .byte 0 // Array animation position pointer 0
@@ -68,6 +68,7 @@ xposm7:  .byte 64 // Most significant byte Xpes sprite 0
 .const SPRMULTI = $D01C
 .const XEXPAND	= $D01D
 .const FRAMCOL  = $D020
+.const SCRCOL   = $D021
 .const EXCOLOR1 = $D025
 .const EXCOLOR2 = $D026
 .const COLOR0   = $D027
@@ -78,6 +79,9 @@ xposm7:  .byte 64 // Most significant byte Xpes sprite 0
 .const COLOR5   = $D02C
 .const COLOR6   = $D02D
 .const COLOR7   = $D02E
+.const VOICE1		= $D404
+.const VOICE2   = $D40B
+.const VOICE3   = $D412
 .const SCRCLRADR = $DB97 // Color memory last line
 .const INTCONTREG1 = $DC0D // CIA 1 Interrupt control
 .const INTCONTREG2 = $DD0D // CIA 2 Interrupt control
@@ -87,7 +91,7 @@ xposm7:  .byte 64 // Most significant byte Xpes sprite 0
 #import "Macro.asm"
 
 // Start of the main program
-* = $4000 "Main Program"		// <- The name 'Main program' will appear in the memory map when assembling		jsr clear
+* = $2000 "Main Program"		// <- The name 'Main program' will appear in the memory map when assembling		jsr clear
 begin:  
   sei            // Disable interrupts
   lda #%01111111 //Disable CIA IRQ's
@@ -132,10 +136,62 @@ begin:
   bit $dd0d  // clears them
   cli    //Allow IRQ's
 
-// Main endless loop
-main:     
-  jmp *       //;jump to loop.
+	// Main until space is pressed
+	jsr wait_space
+	
+	// Stop raster interrupts
+	lda #%00000000
+	sta INTVICCONTREG	
 
+	// Remove sprites from screen
+	sta ENABLE
+
+	// Reset SID
+	sta VOICE1			// disable voice 1 <- #0
+	sta VOICE2			// disable voice 2 <- #0
+	sta VOICE3			// disable voice 3 <- #0
+
+	// Disable scroll mode
+	lda #%00010000
+	sta SCRCONTREG
+
+	// Finally empty the screen
+  ClearScreen(00)
+
+	// DEBUG!
+	lda #00				// Black
+	sta FRAMCOL
+	sta SCRCOL
+
+	// Back to upper case 
+  lda #%00010101      // To upper case
+  sta MEMSETREG     
+
+	// Bank in Kernal again
+  lda #$37 //Bank in kernal and basic
+  sta $01  //$e000-$ffff
+
+	// Even more debug
+	rts
+
+	// Wait for space key
+wait_space:
+	sei				// SEI and CLI are needed around this routine
+	lda #$7F  //%01111111 
+	sta $DC00 
+	lda $DC01 
+	and #$10  //mask %00010000 
+	cli	
+	bne wait_space 
+release_space: 
+	sei				// When interrupts aren't disabled this just won't work
+	lda #$7f	// %01111111
+	sta $dc00
+	lda $dc01 
+	and #$10	
+	cli
+	beq release_space 
+	rts
 
   // Sprite init
 sprite_init:
@@ -199,15 +255,8 @@ raster_init:
   sta INTVICCONTREG
   rts
 
-  // Music loader
-  //*=$1000 "Music"
-  //.label music_init =*			// <- You can define label with any value (not just at the current pc position as in 'music_init:') 
-  //.label music_play =*+3			// <- and that is useful here
-  //.import binary "ode to 64.bin"	// <- import is used for importing files (binary, source, c64 or text)	
+  // Music play address
 	.label music_play = $1003
-	
-
-	
 
 // Interrupt handling routines
 #import "Irq.asm"

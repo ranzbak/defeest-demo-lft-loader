@@ -11,9 +11,9 @@ defeest-screen-fill/Screenfill.prg
 # $3000-$3403 Unnamed
 # $4000-$445d Main Program
 # $4500-$4518 Data
-defeest-intro/Movesprite.prg         3000 2 404
-defeest-intro/Movesprite.prg         4000 1002 45f
-defeest-intro/Movesprite.prg         4500 1502 19
+defeest-intro/Movesprite.prg         2000 2 4ff
+defeest-intro/Movesprite.prg         2500 502 19
+defeest-intro/Movesprite.prg         3000 1002 404
 defeest-intro/Circus_Syphilis.sid    1000 7e
 
 # Next effect?

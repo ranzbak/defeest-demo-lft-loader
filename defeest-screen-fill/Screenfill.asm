@@ -5,7 +5,7 @@
 
 // registers
 .const MEMSETREG = $D018 // VIC memory layout register
-
+.const RESET     = $FFFC
 // Counter
 *=$5100 "Data"
 charcnt: .byte 0   // String position
@@ -118,9 +118,13 @@ rolloop:
 	lda #$01
   sta $0400
 
-	// Jump to intro screen
-	jsr $4000
+	// Jump to defeest intro screen
+	jsr $2000
 
+	// Do a cold reset
+	jmp RESET
+
+	// Net needed, but for completeness
   rts               // Exit
 
 // Text to permutate
