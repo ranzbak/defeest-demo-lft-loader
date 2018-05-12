@@ -5,6 +5,7 @@
 
 # The main loader 'script'
 defeest-screen-fill/Screenfill.prg            
+#ecmplasma/ecmplasma.prg
 
 # Defeest-intro memory map
 # $3000-$2fff Sprites
@@ -12,8 +13,21 @@ defeest-screen-fill/Screenfill.prg
 # $4000-$445d Main Program
 # $4500-$4518 Data
 defeest-intro/Movesprite.prg         2000 2 4ff
-defeest-intro/Movesprite.prg         2500 502 19
-defeest-intro/Movesprite.prg         3000 1002 404
-defeest-intro/Circus_Syphilis.sid    1000 7e
+defeest-intro/Movesprite.prg         2600 602 19
+defeest-intro/Movesprite.prg         3000 1002 57b
+defeest-intro/defeest-anoy3.sid      1000 7e
+
+#
+# Memory Map
+# ----------
+# $2000-$2a71 Main Program
+# $4c00-$4fe7 ScreenRam
+# $5c00-$5fe7 ColorRam:
+# $6000-$7f3f Bitmap
+#
+badline/badline.prg                 2000 2 AFF
+badline/badline.prg                 4C00 2C02 3E8
+badline/badline.prg                 5C00 3C02 3E8
+badline/badline.prg                 6000 4002 1F41
 
 # Next effect?

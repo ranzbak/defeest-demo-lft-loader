@@ -7,13 +7,13 @@
 .const MEMSETREG = $D018 // VIC memory layout register
 .const RESET     = $FFFC
 // Counter
-*=$5100 "Data"
+*=$C100 "Data"
 charcnt: .byte 0   // String position
 scrcnt:  .byte 0   // Screen position
 wcnt:    .byte 0   // Word count
 
 // Start of the main program
-* = $5000 "Main Program"    // <- The name 'Main program' will appear in the memory map when assembling   jsr clear
+* = $C000 "Main Program"    // <- The name 'Main program' will appear in the memory map when assembling   jsr clear
 begin:  
   lda #%00010111      // To lower case
   sta MEMSETREG       
@@ -121,10 +121,27 @@ rolloop:
 	// Jump to defeest intro screen
 	jsr $2000
 
+	// Load the next stage
+	cli
+	jsr $c90
+	clc
+
+	// Badline
+	jsr $2000
+
+
+	// Disable raster interrupts
+	lda #$00
+	sta $D01A
+
+	// Bank in Kernal again
+  lda #$37 //Bank in kernal and basic
+  sta $01  //$e000-$ffff
+
 	// Do a cold reset
 	jmp RESET
 
-	// Net needed, but for completeness
+	// Not needed, but for completeness
   rts               // Exit
 
 // Text to permutate

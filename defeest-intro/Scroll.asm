@@ -96,16 +96,29 @@ endirq:
 //---------------------------------------
 text:    
   .text " deFEEST, does copy paste scrollers."
-	.text " Thanks to the members of The Subversive Elements"
-	.text " for helping us get the code together"
-  .text "!               "
   .text "                    "
-  .text "         "
-  .byte $FF
-	.text ".hsinniF nrael dna msa nrael ot emit dnuof ohw "
+  .text "                    "
+  .byte $FF // back
+	.text " .rehtegot edoc eht teg su gnipleh rof stnemelE evisrevbuS ehT fo srebmem eht ot sknahT"
+  .text "                    "
+  .text "                    "
+  .byte $FF // forward
+	.text " Roses are red, violets are blue, deFEETS can't do poetry and so can't you."
+  .text "                    "
+  .text "                    "
+  .byte $FF // back
+	.text " .hsinniF nrael dna msa nrael ot emit dnuof ohw "
 	.text " ,sniF eht tsael ton tub tsal dna stleb tuohtiw "
 	.text " elpoep hcsinaD eht ,sniF eht ,srelweK ot sgniteerG"
   .text " .... "
+  .text "                    "
+  .text "                    "
+  .byte $FF // forward
+	.text " No animals where hurt during the creation of this demo, we believe."
+  .text "                    "
+  .text "                    "
+  .byte $FF // Backward
+	.text " ?teggunneh a eb si t'ndluohs ,ti ni sneh sah ylno teggunnekcihc a nehW"
   .text "                    "
   .text "                    "
   .byte $FF,0

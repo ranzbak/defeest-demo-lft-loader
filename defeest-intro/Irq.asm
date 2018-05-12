@@ -8,8 +8,7 @@ irq1:
   pha
   tya
   pha
-  lda #$ff // Acknowledge interrupt
-  sta	$d019
+  inc	$d019 // Acknowledge interrupt
 
   SetBorderColor(RED)			// <- This is how macros are executed
   jsr music_play
@@ -38,8 +37,7 @@ irq1:
 
 // Set Border and backround to blue
 irq2:
-  lda #$ff // Acknowledge interrupt
-  sta	$d019
+  inc	$d019 // Acknowledge interrupt
 
   clc
   ldx #$10
@@ -63,8 +61,7 @@ irq2:
 
 // Rasterbar and animation loop
 irq3: 
-  lda #$ff // Acknowledge interrupt
-  sta	$d019
+  inc	$d019  // Acknowledge interrupt
 
 //  lda #7 // Turn screen border yellow
 //  sta FRAMCOL

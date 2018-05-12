@@ -46,8 +46,8 @@ rasirq2:
          ldy #$E0   //at line $FE
          sta INTVEC
          stx INTVEC+1
-         sty $d012
-         asl $d019  //Ack RASTER IRQ
+         sty $D012
+         asl $D019  //Ack RASTER IRQ
  
 lab_a1: lda #$00    //Reload A,X,and Y
 .label reseta1 = lab_a1+1

@@ -3,7 +3,7 @@
 //* Create and move a simple sprite x,y           *
 //*************************************************
 
-* = $2500 "Data"		
+* = $2600 "Data"		
 // Animation vars
 fcount:  .byte 0 // Frame counter
 pos0:    .byte 0 // Array animation position pointer 0
@@ -119,7 +119,6 @@ begin:
   lda #>text
   sta TEXTADR+1
 
-
   // Initialize the sprites
   jsr sprite_init
 
@@ -132,9 +131,9 @@ begin:
 
   // Start teh main routine
   asl INTSTATREG  // Ack any previous raster interrupt
-  bit $dc0d    // reading the interrupt control registers 
-  bit $dd0d  // clears them
-  cli    //Allow IRQ's
+  bit $dc0d				// reading the interrupt control registers 
+  bit $dd0d				// clears them
+  cli							// Allow IRQ's
 
 	// Main until space is pressed
 	jsr wait_space

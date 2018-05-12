@@ -34,6 +34,12 @@ fi
 # Build code
 build_kickasm defeest-screen-fill/Screenfill
 build_kickasm defeest-intro/Movesprite
+build_kickasm badline/badline
+
+# Build plasma effect
+pushd ecmplasma
+make all
+popd
 
 # Build new image
 ../spindle/spin -vv -o disk.d64 script 
