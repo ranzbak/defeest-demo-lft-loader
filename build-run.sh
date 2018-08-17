@@ -8,6 +8,14 @@ if [ -z $KICKASM ]; then
   exit 1
 fi
 
+# C64 debugger path
+#if [ -z $C64DEBUGGERPATH ]; then
+#  echo "You need to set the path to Kickasm."
+#  echo "Example: export C64DEBUGGERPATH=/home/paul/work/c64/c64debugger/C64Debugger/C64Debugger"
+#  exit 1
+#fi
+
+
 # Build asm objects
 function build_kickasm {
   # File to build
@@ -46,5 +54,6 @@ popd
 
 # If success run the emulator
 if [[ -f "disk.d64" ]]; then
-  x64 disk.d64
+  #$C64DEBUGGERPATH -autorundisk -d64 disk.d64 
+  x64 ./disk.d64
 fi

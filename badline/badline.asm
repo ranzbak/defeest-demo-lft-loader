@@ -170,19 +170,19 @@ begin:
   cli
 
   // Wait for space for exit
-main_loop:
-  jmp *
+main_loop: jmp *
 
   // Back to normal text screen
-  sei
+	sei
+	
   lda #$00                // Disable raster interrupt
-  sta $d01a
-  asl $d019               //Ack RASTER IRQ
-  lda #$00                // Disable sprites
-  sta $D015
+  sta $d01a               // Disable raster interrupt
+  sta $d015							  // Disable Sprites
+  asl $d019               // Ack RASTER IRQ
+
   cli
 
-  rts                     // Back to basic
+  rts                     // Back to the load routine
 
 
 // helper routines -----------------------------------------------------------------------------]
@@ -838,7 +838,7 @@ wait_space:
   lda $DC01
   and #$10                        //mask %00010000
   bne !over+
-  lda $0C                         // Illegal opcode NOP $FFFF, replace the jump command with a nop, this will end the loop
+  lda #$0C                         // Illegal opcode NOP $FFFF, replace the jump command with a nop, this will end the loop
   sta main_loop
 !over:
   rts

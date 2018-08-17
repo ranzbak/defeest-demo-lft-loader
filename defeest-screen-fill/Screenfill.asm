@@ -130,10 +130,6 @@ rolloop:
 	jsr $2000
 
 
-	// Disable raster interrupts
-	lda #$00
-	sta $D01A
-
 	// Bank in Kernal again
   lda #$37 //Bank in kernal and basic
   sta $01  //$e000-$ffff
