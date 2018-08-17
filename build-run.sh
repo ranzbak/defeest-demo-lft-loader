@@ -43,6 +43,7 @@ fi
 build_kickasm defeest-screen-fill/Screenfill
 build_kickasm defeest-intro/Movesprite
 build_kickasm badline/badline
+build_kickasm hborder/hborder
 
 # Build plasma effect
 pushd ecmplasma
