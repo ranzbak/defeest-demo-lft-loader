@@ -14,11 +14,11 @@ wcnt:    .byte 0   // Word count
 
 // Start of the main program
 * = $C000 "Main Program"    // <- The name 'Main program' will appear in the memory map when assembling   jsr clear
-begin:  
+begin:
   lda #%00010111      // To lower case
-  sta MEMSETREG       
+  sta MEMSETREG
 
-// Init the data segment again  
+// Init the data segment again
   lda #0
   sta MASK
   sta charcnt
@@ -28,21 +28,21 @@ begin:
 // Put characters to the screen
 loop_defeest:
   ldx #0            // Reset string position
-  stx charcnt       
+  stx charcnt
 
 loop_text:
   // Prepare bit mask
   lda charcnt       // Get the loop count from memory
-  and #%00000111    // Mask to % 8 
-  adc #1            // 
+  and #%00000111    // Mask to % 8
+  adc #1            //
   tax
   lda #%00000001    // Store value into zero page
 rolloop:
-  asl               // Rol left ACC 
+  asl               // Rol left ACC
   dex               // DEC X reg
   bne rolloop       // 0 Yet?
   sta MASK          // Store the generated bit mask
-  
+
   // Get char from string
   lda wcnt          // Get the charcount to compare against
   and MASK          // AND bitmask with ACC
@@ -93,15 +93,15 @@ rolloop:
 !mainloop:
   clc
   lda #$10
-!rasloop:  
+!rasloop:
   cmp $d012
   bne !rasloop-
   dex
-  bne !mainloop- 
+  bne !mainloop-
 
 // Clear the screen
   lda #$20
-!loop:   
+!loop:
   sta $0400,x
   sta $0500,x
   sta $0600,x
@@ -110,8 +110,8 @@ rolloop:
   bne !loop-
 
   lda #%00010101      // To upper case
-  sta MEMSETREG     
-  
+  sta MEMSETREG
+
   lda #$04            // Restore the self modified code
   sta scroffset+1
 

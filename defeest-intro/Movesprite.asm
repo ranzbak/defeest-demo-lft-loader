@@ -3,7 +3,10 @@
 //* Create and move a simple sprite x,y           *
 //*************************************************
 
-* = $2600 "Data"		
+// Raster debug ?
+.const DEBUG = 0
+
+* = $2600 "Data"
 // Animation vars
 fcount:  .byte 0 // Frame counter
 pos0:    .byte 0 // Array animation position pointer 0
@@ -30,7 +33,7 @@ xposm6:  .byte 30 // Most significant byte Xpes sprite 0
 pos7:    .byte 28 // Array animation position pointer 0
 xposl7:  .byte 180 // Least significant byte Xpos sprite 0
 xposm7:  .byte 64 // Most significant byte Xpes sprite 0
-		
+
 // Zero page
 .const Q = 2
 .const XPIXSHIFT = 4
@@ -43,7 +46,7 @@ xposm7:  .byte 64 // Most significant byte Xpes sprite 0
 .const SCNKEY =  $FF9F
 
 //sprite 0 setup
-.const SCRLADR = $7c0	 
+.const SCRLADR = $7c0
 .const SPRITE0 = $7F8
 .const SPRITE1 = $7F9
 .const SPRITE2 = $7FA
@@ -92,7 +95,7 @@ xposm7:  .byte 64 // Most significant byte Xpes sprite 0
 
 // Start of the main program
 * = $2000 "Main Program"		// <- The name 'Main program' will appear in the memory map when assembling		jsr clear
-begin:  
+begin:
   sei            // Disable interrupts
   lda #%01111111 //Disable CIA IRQ's
   sta INTCONTREG1      // Clear interrupt register1
@@ -105,16 +108,16 @@ begin:
   sta $01  //$e000-$ffff
 
   SetBorderColor(BLACK) // Initialize the screen memory
-  SetBackgroundColor(BLACK) 
+  SetBackgroundColor(BLACK)
   ClearScreen(00)
-	SetTextColor(WHITE) 
+	SetTextColor(WHITE)
 
 	// Text to lowercase
-  lda #23   
+  lda #23
   sta $d018 // Text mode to lower
 
   // Init text scroller
-  lda #<text 
+  lda #<text
   sta TEXTADR
   lda #>text
   sta TEXTADR+1
@@ -126,21 +129,21 @@ begin:
 	//lda #0
 	//jsr $1000
 
-  // Init the raster interrupt that does the animation	
+  // Init the raster interrupt that does the animation
   jsr raster_init // Setup the raster interrupt
 
   // Start teh main routine
   asl INTSTATREG  // Ack any previous raster interrupt
-  bit $dc0d				// reading the interrupt control registers 
+  bit $dc0d				// reading the interrupt control registers
   bit $dd0d				// clears them
   cli							// Allow IRQ's
 
 	// Main until space is pressed
 	jsr wait_space
-	
+
 	// Stop raster interrupts
 	lda #%00000000
-	sta INTVICCONTREG	
+	sta INTVICCONTREG
 
 	// Remove sprites from screen
 	sta ENABLE
@@ -158,13 +161,15 @@ begin:
   ClearScreen(00)
 
 	// DEBUG!
-	lda #00				// Black
-	sta FRAMCOL
-	sta SCRCOL
+	.if (DEBUG==1) {
+		lda #00				// Black
+		sta FRAMCOL
+		sta SCRCOL
+	}
 
-	// Back to upper case 
+	// Back to upper case
   lda #%00010101      // To upper case
-  sta MEMSETREG     
+  sta MEMSETREG
 
 	// Bank in Kernal again
   lda #$37 //Bank in kernal and basic
@@ -176,20 +181,20 @@ begin:
 	// Wait for space key
 wait_space:
 	sei				// SEI and CLI are needed around this routine
-	lda #$7F  //%01111111 
-	sta $DC00 
-	lda $DC01 
-	and #$10  //mask %00010000 
-	cli	
-	bne wait_space 
-release_space: 
+	lda #$7F  //%01111111
+	sta $DC00
+	lda $DC01
+	and #$10  //mask %00010000
+	cli
+	bne wait_space
+release_space:
 	sei				// When interrupts aren't disabled this just won't work
 	lda #$7f	// %01111111
 	sta $dc00
-	lda $dc01 
-	and #$10	
+	lda $dc01
+	and #$10
 	cli
-	beq release_space 
+	beq release_space
 	rts
 
   // Sprite init
@@ -218,7 +223,7 @@ sprite_init:
   lda #%01111111		//enable sprites
   sta ENABLE
 
-  // Color to the sprites	
+  // Color to the sprites
   lda #05		//use red for sprite0
   sta COLOR0
   sta COLOR1
@@ -234,7 +239,7 @@ sprite_init:
   rts
 
   // Setup Raster interrupt
-raster_init: 
+raster_init:
   //lda #%01111111  // Switch of interrupt signals from CIA-1
   //sta INTCONTREG
 

@@ -7,12 +7,12 @@
 //
 
 // Raster debug ?
-.const DEBUG = 1
+.const DEBUG = 0
 
 //BasicUpstart2(begin)        // <- This creates a basic sys line that can start your program
 
 // common register definitions
-.const REG_INTSERVICE_LOW  = $FFFE              // interrupt service routine low byte $0314 
+.const REG_INTSERVICE_LOW  = $FFFE              // interrupt service routine low byte $0314
 .const REG_INTSERVICE_HIGH = $FFFF              // interrupt service routine high byte $0315
 .const REG_SCREENCTL_1     = $D011              // screen control register #1
 .const REG_RASTERLINE      = $D012              // raster line position
@@ -164,7 +164,7 @@ begin:
 
   // Start the main routine
   asl REG_INTSTAT  // Ack any previous raster interrupt
-  bit $dc0d    // reading the interrupt control registers 
+  bit $dc0d    // reading the interrupt control registers
   bit $dd0d    // clears them
 
   cli
@@ -174,8 +174,8 @@ main_loop: jmp *
 
   // Back to normal text screen
 	sei
-	
-  lda #$00                // Disable raster interrupt
+
+  lda #$00
   sta $d01a               // Disable raster interrupt
   sta $d015							  // Disable Sprites
   asl $d019               // Ack RASTER IRQ
@@ -247,9 +247,9 @@ sync_intro:
   ldx #$00                        // Make sure the scroller is white
 !loop:
 
-  // Clear scroller field on screen of garbage characters 
+  // Clear scroller field on screen of garbage characters
   sta C_SCREEN_BANK + $6f5, x
-  inx 
+  inx
   bne !loop-
 
   lda #%00000001

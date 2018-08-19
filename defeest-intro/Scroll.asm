@@ -3,12 +3,14 @@ scroll_irq:
 	lda #$ff		// Acknowledge interrupt
 	sta $d019
 
+.if (DEBUG==1) {
   lda #7      // Turn screen frame yellow
   sta $d020
+}
 
-.var DESTSTART=*+1 
+.var DESTSTART=*+1
   ldx #39 //39
-.var SRCSTART=*+1       
+.var SRCSTART=*+1
   ldy #39 //37
 
 xpixshiftadd:
@@ -18,7 +20,7 @@ xpixshiftadd:
   and #7
   sta $d016
 
-  cmp XPIXSHIFT 
+  cmp XPIXSHIFT
   sta XPIXSHIFT
   beq endirq
 
@@ -45,14 +47,14 @@ s:
   sta TEXTADR
   lda #>text
   sta TEXTADR+1
-  jmp endirq 
+  jmp endirq
 overrestart:
 
-  iny 
+  iny
   bmi nobegin
   ldx #$27
 
-nobegin:  
+nobegin:
   inc TEXTADR
   bne textlower
   inc TEXTADR+1
@@ -61,10 +63,10 @@ textlower:
   tay  // Transfer A to Y
   bmi dirchange // A < than num
 
-  sta SCRLADR,X 
+  sta SCRLADR,X
   bpl endirq // Jump to main loop
   //---------------------------------------
-dirchange: 
+dirchange:
   lda xpixshiftadd
   eor #$20
   sta xpixshiftadd
@@ -77,9 +79,11 @@ dirchange:
   sty DESTSTART
   //bne loop
 endirq:
+.if (DEBUG==1) {
   lda #0
   sta $d020   // Background to black
-  asl $d019   // Acknowledge interrupt 
+}
+  asl $d019   // Acknowledge interrupt
 
   // Jump to the Raster bar routine
   lda #<rasirq1 // Set inturrupt register to routine 2
@@ -87,14 +91,14 @@ endirq:
   sta INTVEC
   stx INTVEC+1
 
-	// Trigger Next interrupt 
+	// Trigger Next interrupt
 	ldy #200
 	sty $d012
-	
+
 	rti
 
 //---------------------------------------
-text:    
+text:
   .text " deFEEST, does copy paste scrollers."
   .text "                    "
   .text "                    "

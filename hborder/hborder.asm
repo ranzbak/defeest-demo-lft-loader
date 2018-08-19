@@ -4,7 +4,7 @@ BasicUpstart2(begin)				// <- This creates a basic sys line that can start your 
 // Main
 begin:
   sei							// Disable interrupts
-  
+
   lda #%01111111	// Switch off interrupts from the CIA-1
   sta $dc0d
   and $d011				// Clear most significant bit in VIC raster register
@@ -19,9 +19,9 @@ begin:
   sta $d01a
   lda #29
   sta yloc
-  
+
   asl $d019				// Ack any previous raster interrupt
-  bit $dc0d				// reading the interrupt control registers 
+  bit $dc0d				// reading the interrupt control registers
   bit $dd0d				// clears them
 
 	lda #00					// Clear border garbage
@@ -51,7 +51,7 @@ begin:
 	ldx #100				// Set X position of sprite 0
 	stx $D000
 	ldx #148				// Set X position of sprite 1
-	stx $D002			
+	stx $D002
 	ldx #196				// Set X position of sprite 2
 	stx $D004
 
@@ -61,7 +61,7 @@ begin:
 	sta $D003				// Set y for sprite 1
 	sta $D005				// Set y for sprite 2
 
-	lda #%00000111	// sprite 0-2 double size 
+	lda #%00000111	// sprite 0-2 double size
 	sta $D01D				// Double X
 	sta $D017				// Double Y
 
@@ -73,7 +73,7 @@ begin:
 	sta $0340+64, x
 	lda defeest_sprite2, x
 	sta $0340+128, x
-	inx 
+	inx
 	cpx #63
 	bne !loop-
 
@@ -103,7 +103,7 @@ irq_top_sprites:
         sta $d020
         sta $d021
 
-  asl $d019                             // Acknowledge interrupt 
+  asl $d019                             // Acknowledge interrupt
   jmp $ea81                             // Jump to kernal interrupt routine
 
 irq_midway:
@@ -130,11 +130,11 @@ skip:
         sta $d020
         sta $d021
 
-  asl $d019                             // Acknowledge interrupt 
+  asl $d019                             // Acknowledge interrupt
   jmp $ea81                             // Jump to kernal interrupt routine
 
 
-// Interrupt handler set screen to 24 columns 
+// Interrupt handler set screen to 24 columns
 irq_24:
 	lda #1					// Border to white
 	sta $d020
@@ -150,16 +150,16 @@ irq_24:
 	sta $0314
 	stx $0315
 
-	lda $dc01	// read kbd matrix 
-	cmp #$ef	// space	
+	lda $dc01	// read kbd matrix
+	cmp #$ef	// space
 	bne !over+
-	
+
 	clc
 	lda #252
 	sbc yloc
 	bcs !kill_top_sprites+
 	lda #$00
-	sta sprites_0_nreg		
+	sta sprites_0_nreg
 !kill_top_sprites:
 
 	inc yloc // increment y pos
@@ -177,7 +177,7 @@ overflow:
 	lda #0					// Border to black
 	sta $d020
 
-  asl $d019				// Acknowledge interrupt 
+  asl $d019				// Acknowledge interrupt
   jmp $ea81				// Jump to kernal interrupt routine
 
 // Interrupt handler set screen to 25 colums
@@ -190,7 +190,7 @@ irq_25:
 	sta $d011
 
 	lda #00				// raster interrupt at the end of the screen
-	sta $d012 
+	sta $d012
 	lda #<irq_top_sprites
 	ldx #>irq_top_sprites
 	sta $0314
@@ -199,7 +199,7 @@ irq_25:
 	lda #0					// Border to black
 	sta $d020
 
-  asl $d019				// Acknowledge interrupt 
+  asl $d019				// Acknowledge interrupt
   jmp $ea81				// Jump to kernal interrupt routine
 
 yloc: .byte $00, $00

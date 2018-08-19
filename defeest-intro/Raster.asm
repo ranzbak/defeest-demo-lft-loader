@@ -1,7 +1,7 @@
 //===========================================================================================
 // First Raster bar
-// [x] denotes the number of cycles 
-//=========================================================================================== 
+// [x] denotes the number of cycles
+//===========================================================================================
 rasirq1:
   //The CPU cycles spent to get in here   [7]
   sta reseta1    //Preserve A,X and Y        [4]
@@ -10,7 +10,7 @@ rasirq1:
 
   lda #<rasirq2  //Set IRQ Vector        [4]
   ldx #>rasirq2  //to point to the       [4]
-  //next part of the  
+  //next part of the
   sta INTVEC     //Stable IRQ          [4]
   stx INTVEC+1   //            [4]
   inc $d012      //set raster interrupt to the next line   [6]
@@ -24,23 +24,23 @@ rasirq1:
   nop            //            [59]
   nop            //Execute nop's         [61]
   nop            //until next RASTER       [63]
-  nop            //IRQ Triggers          
+  nop            //IRQ Triggers
 
 //===========================================================================================
 // Part 2 of the Main interrupt handler
-//===========================================================================================                  
+//===========================================================================================
 rasirq2:
          txs      //Restore stack pointer to point the the return
                   //information of irq1, being our endless loop.
-  
+
          ldx #$09 //Wait exactly 9 * (2+3) cycles so that the raster line
          dex      //is in the border        [2]
          bne *-1  //             [3]
- 
+
          // Set the colors
          SetBorderColor(BLUE)
          SetBackgroundColor(BLUE)
- 
+
          lda #<rasirq21 //Set IRQ to point
          ldx #>rasirq21 //to subsequent IRQ
          ldy #$E0   //at line $FE
@@ -48,7 +48,7 @@ rasirq2:
          stx INTVEC+1
          sty $D012
          asl $D019  //Ack RASTER IRQ
- 
+
 lab_a1: lda #$00    //Reload A,X,and Y
 .label reseta1 = lab_a1+1
 
@@ -57,13 +57,13 @@ lab_x1: ldx #$00
 
 lab_y1: ldy #$00
 .label  resety1 = lab_y1+1
- 
+
          rti    //Return from IRQ
 
 //===========================================================================================
 // Second raster bar
-// [x] denotes the number of cycles 
-//=========================================================================================== 
+// [x] denotes the number of cycles
+//===========================================================================================
 rasirq21:
   //The CPU cycles spent to get in here   [7]
   sta reseta21    //Preserve A,X and Y        [4]
@@ -72,7 +72,7 @@ rasirq21:
 
   lda #<rasirq22  //Set IRQ Vector        [4]
   ldx #>rasirq22  //to point to the       [4]
-  //next part of the  
+  //next part of the
   sta INTVEC     //Stable IRQ          [4]
   stx INTVEC+1   //            [4]
   inc $d012      //set raster interrupt to the next line   [6]
@@ -86,23 +86,23 @@ rasirq21:
   nop            //            [59]
   nop            //Execute nop's         [61]
   nop            //until next RASTER       [63]
-  nop            //IRQ Triggers          
+  nop            //IRQ Triggers
 
 //===========================================================================================
 // Part 2 of the Main interrupt handler
-//===========================================================================================                  
+//===========================================================================================
 rasirq22:
   txs      //Restore stack pointer to point the the return
   //information of irq1, being our endless loop.
-  
+
   ldx #$09 //Wait exactly 9 * (2+3) cycles so that the raster line
   dex      //is in the border        [2]
   bne *-1  //             [3]
-  
+
   // Set the colors
   SetBorderColor(BLACK)
   SetBackgroundColor(BLACK)
-  
+
   lda #<irq3 //Set IRQ to point
   ldx #>irq3 //to subsequent IRQ
   ldy #$FE   //at line $FE

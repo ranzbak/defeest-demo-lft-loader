@@ -10,9 +10,13 @@ irq1:
   pha
   inc	$d019 // Acknowledge interrupt
 
+	.if (DEBUG==1) {
   SetBorderColor(RED)			// <- This is how macros are executed
+	}
   jsr music_play
+	.if (DEBUG==1) {
   SetBorderColor(BLACK)		// <- There are predefined constants for colors
+	}
 
   pla
   tay
@@ -44,8 +48,10 @@ irq2:
 !loop: dex
   bpl !loop-
   
-//  SetBorderColor(BLUE)
-//  SetBackgroundColor(BLUE)
+.if (DEBUG==1) {
+  SetBorderColor(BLUE)
+  SetBackgroundColor(BLUE)
+}
 
   // Set the interrupt for SID handling
   lda #<irq3 // Set inturrupt register to routine 2
@@ -65,7 +71,9 @@ irq3:
 
 //  lda #7 // Turn screen border yellow
 //  sta FRAMCOL
-//  SetBorderColor(YELLOW)		
+.if (DEBUG==1) {
+  SetBorderColor(YELLOW)
+}
 
   // Move sprites over the X axis
   MoveSpriteX(0, xposl0, xposm0)
@@ -87,8 +95,10 @@ irq3:
   AnimSprite(6, bounce, pos6)
   AnimSprite(7, bounce, pos7)
 
-//  SetBorderColor(BLACK)		
-//  SetBackgroundColor(BLACK)
+.if (DEBUG==1) {
+  SetBorderColor(BLACK)
+  SetBackgroundColor(BLACK)
+}
 
   // Set the interrupt for SID handling
   lda #<irq1 // Set inturrupt register to routine 2
