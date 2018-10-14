@@ -43,6 +43,16 @@
 *=C_SCREEN_BANK + $1C00 "ColorRam:"; colorRam:  .fill picture.getColorRamSize(), picture.getColorRam(i)
 *=C_SCREEN_BANK + $2000 "Bitmap";       .fill picture.getBitmapSize(), picture.getBitmap(i)
 
+// Define macro
+.macro HandleTODIRQ() {
+    lda #$00000100 // Check for TOD interrupt status bit
+		bit $DC0D			 
+		beq !over+
+		lda #$0C                         // Illegal opcode NOP $FFFF, replace the jump command with a nop, this will end the loop
+		sta main_loop
+!over:
+}
+
 * = $2000 "Main Program"
 // Let the code begin
 begin:
@@ -164,9 +174,37 @@ begin:
 
   // Start the main routine
   asl REG_INTSTAT  // Ack any previous raster interrupt
+	lda $80			 // Set the 50Hz
+	sta $dd0e		
   bit $dc0d    // reading the interrupt control registers
-  bit $dd0d    // clears them
+	lda $84			 // nmi on
+	sta $dd0d  
+  bit $dd0d
 
+	// Setup Alarm
+	lda #%10000000 // Set Alarm
+	sta $dc0f
+	lda #$05  // 5 seconds
+	sta $DC09 // Alarm in seconds
+	lda #$00
+	sta $DC0B // Alarm Timer to 0 hours & stop timer
+	sta $DC0A // Alarm Timer to 0 minutes
+	sta $DC08 // Alarm Timer tenth of seconds 0 & start timer
+
+	
+	// Set current time
+	lda #%00000000 // Set time of day
+	sta $dc0f
+	lda #$00
+	sta $dc08 // Set tenth of seconds and stop timer 
+	sta $dc09 // Set seconds
+	sta $dc0a // Set minutes
+	sta $dc0b // Set hours and start timer
+
+  // Enable TOD interrupt
+	lda #$00000100
+	sta $dc0d
+	
   cli
 
   // Wait for space for exit
@@ -191,6 +229,8 @@ apply_interrupt:
   sta REG_RASTERLINE              // D012 apply next interrupt
   stx REG_INTSERVICE_LOW          // FFFE
   sty REG_INTSERVICE_HIGH         // FFFF
+
+	HandleTODIRQ()
 
   // jmp $ea81
   rti
