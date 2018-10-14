@@ -31,3 +31,6 @@ badline/badline.prg                 5C00 3C02 3E8
 badline/badline.prg                 6000 4002 1F41
 
 # Next effect?
+hborder/hborder.prg                 1000 2 1c0
+hborder/hborder.prg                 3000 2002 c2
+
