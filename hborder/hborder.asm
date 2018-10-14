@@ -1,9 +1,12 @@
 //BasicUpstart2(begin)                            // <- This creates a basic sys line that can start your program
-* = $1000 "Horizontal drop"    // <- The name 'Main program' will appear in the memory map when assembling   jsr clear
+* = $2000 "Horizontal drop"    // <- The name 'Main program' will appear in the memory map when assembling   jsr clear
 
 // Main
 begin:
   sei                                                   // Disable interrupts
+
+  lda #$35 //Bank out kernal and basic
+  sta $01  //$e000-$ffff
   
   lda #%01111111        // Switch off interrupts from the CIA-1
   sta $dc0d
@@ -12,11 +15,13 @@ begin:
   lda #252                              // Set raster line to interrupt on
   sta $d012
   lda #<irq_25          // Set the interrupt vector to point to the service routine
-  sta $0314
+  sta $FFFE
   lda #>irq_25
-  sta $0315
+  sta $FFFF
   lda #%00000001        // Enable raster interrupt to VIC
   sta $d01a
+  lda #$00
+  sta $dd0d
   lda #29
   sta yloc
   
@@ -24,8 +29,31 @@ begin:
   bit $dc0d                             // reading the interrupt control registers 
   bit $dd0d                             // clears them
 
-        lda #00                                 // Clear border garbage
-        sta $3fff
+//        lda #00                                 // Clear border garbage
+//        sta $3fff
+
+ lda #$20
+!loop:   
+	sta $0400,x
+	sta $0500,x
+	sta $0600,x
+	sta $0700,x
+	dex
+	bne !loop-
+
+lda #$00
+!loop:
+	sta $d800,x
+	dex
+	bne !loop-
+
+	lda #$1a
+	sta $400 + $7f8
+	lda #$1b
+	sta $400 + $ff8
+
+	lda #$15
+	sta $d018
 
         lda #$0D                                // Using block 13 for Sprite 0
         sta $7f8
@@ -65,6 +93,9 @@ begin:
         sta $D01D                               // Double X
         sta $D017                               // Double Y
 
+  lda #$ff
+  sta $D01B               // Sprites behind graphics sprites
+
         ldx #0                                  // Copy sprite into sprite memory
 
 !loop:
@@ -86,11 +117,17 @@ main_loop:
         sta $d01a                               // disable raster interupts
         sta $d015                               // disable sprites
         asl $d019                               // ack raster irc
+	lda #$37
+	sta $01
         cli
-        jmp $fffc                             // reset for testing
+//        jmp $fffc                             // reset for testing
         rts
 
 irq_top_sprites:
+	sta $02
+        lda $DC0D
+        stx $03
+        sty $04
         lda #1                                  // Border to white
         sta $d020
         sta $d021
@@ -99,8 +136,8 @@ irq_top_sprites:
         sta $d012
         lda #<irq_midway
         ldx #>irq_midway
-        sta $0314
-        stx $0315
+        sta $FFFE
+        stx $FFFF
 
         lda sprites_0_nreg: #$00                // Disable sprite 0-2
         sta $d015
@@ -109,10 +146,18 @@ irq_top_sprites:
         sta $d020
         sta $d021
 
-        asl $d019                               // Acknowledge interrupt 
-        jmp $ea81                               // Jump to kernal interrupt routine
+        lda #$01
+        sta $D019
+        ldy $04
+        ldx $03
+        lda $02
+	rti
 
 irq_midway:
+        sta $02
+        lda $DC0D
+        stx $03
+        sty $04
         lda #1                                  // Border to white
         sta $d020
         sta $d021
@@ -121,12 +166,12 @@ irq_midway:
         sta $d012
         lda #<irq_24
         ldx #>irq_24
-        sta $0314
-        stx $0315
+        sta $FFFE
+        stx $FFFF
 
 	lda yloc
 	jsr binhex
-        sta $0400       // counter msn to screen
+	sta $0400       // counter msn to screen
 	stx $0401	// counter lsm to screen
 
         lda firstrun
@@ -140,13 +185,19 @@ skip:
         lda #0                                  // Border to black
         sta $d020
         sta $d021
-
-  asl $d019                             // Acknowledge interrupt
-  jmp $ea81                             // Jump to kernal interrupt routine
-
+        lda #$01
+        sta $D019
+        ldy $04
+        ldx $03
+        lda $02
+  	rti
 
 // Interrupt handler set screen to 24 columns
 irq_24:
+        sta $02
+        lda $DC0D
+        stx $03
+        sty $04
         lda #1                                  // Border to white
         sta $d020
 
@@ -158,8 +209,8 @@ irq_24:
         sta $d012
         lda #<irq_25
         ldx #>irq_25
-        sta $0314
-        stx $0315
+        sta $FFFE
+        stx $FFFF
 
         jsr wait_space      
 
@@ -192,13 +243,22 @@ overflow:
         lda #0                                  // Border to black
         sta $d020
 
-        asl $d019                             // Acknowledge interrupt 
-        jmp $ea81                             // Jump to kernal interrupt routine
+        lda #$01
+        sta $D019
+        ldy $04
+        ldx $03
+        lda $02
+	rti
 
 // Interrupt handler set screen to 25 colums
 irq_25:
+        sta $02
+        lda $DC0D
+        stx $03
+        sty $04
         lda #7                                  // Border to yellow
         sta $d020
+        sta $d021
 
         lda $d011                               // Set bit 3 to enable 25 line mode
         ora #%00001000
@@ -208,14 +268,19 @@ irq_25:
         sta $d012 
         lda #<irq_top_sprites
         ldx #>irq_top_sprites
-        sta $0314
-        stx $0315
+        sta $FFFE
+        stx $FFFF
 
         lda #0                                  // Border to black
         sta $d020
+        sta $d021
 
-        asl $d019                             // Acknowledge interrupt 
-        jmp $ea81                             // Jump to kernal interrupt routine
+        lda #$01
+        sta $D019
+        ldy $04
+        ldx $03
+        lda $02
+	rti
 
 wait_space:
         ldx #$7F                        //%01111111, Detect if space is pressed
@@ -267,7 +332,7 @@ finalize_nybble:
          rts                   // done
 
   asl $d019				// Acknowledge interrupt
-  jmp $ea81				// Jump to kernal interrupt routine
+  rti 
 
 yloc: .byte $00, $00
 firstrun: .byte $00

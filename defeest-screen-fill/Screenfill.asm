@@ -135,7 +135,7 @@ rolloop:
 	clc
 
 	// Hborder
-	jsr $1000
+	jsr $2000
 
 	// Bank in Kernal again
   lda #$37 //Bank in kernal and basic
