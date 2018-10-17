@@ -130,11 +130,18 @@ rolloop:
 	// Badline
 	jsr $2000
 
-	// Load the-end
+	// Load the Hborder effect
 	cli
 	jsr $c90
 	clc
 
+	// Hborder
+	jsr $2000
+
+	// Load the-end
+	cli
+	jsr $c90
+	clc
 	// The end
 	jsr $1000
 

@@ -15,7 +15,6 @@ fi
 #  exit 1
 #fi
 
-
 # Build asm objects
 function build_kickasm {
   # File to build

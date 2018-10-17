@@ -1,4 +1,3 @@
-
 # First part contains the master demo routine and the music.
 # Spindle automatically jumps to the load address of the first file listed
 # here, unless you specify an entry point with the -e option.
@@ -29,6 +28,12 @@ badline/badline.prg                 2000 2 AFF
 badline/badline.prg                 4C00 2C02 3E8
 badline/badline.prg                 5C00 3C02 3E8
 badline/badline.prg                 6000 4002 1F41
+
+# Memory Map
+#$2000-$2203 Horizontal drop
+#$3000-$30bf Sprite
+hborder/hborder.prg                 2000 2 2c0
+hborder/hborder.prg                 3000 1002 c1
 
 # The-end
 # Memory Map
