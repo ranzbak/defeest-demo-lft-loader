@@ -84,6 +84,7 @@ rolloop:
   cpx #$92         // Print 'defeest' 16 times
   bne loop_defeest  // Print the next word
 
+
 	// Load the next stage
 	cli
 	jsr $c90
@@ -129,6 +130,13 @@ rolloop:
 	// Badline
 	jsr $2000
 
+	// Load the-end
+	cli
+	jsr $c90
+	clc
+
+	// The end
+	jsr $1000
 
 	// Bank in Kernal again
   lda #$37 //Bank in kernal and basic

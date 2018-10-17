@@ -30,4 +30,17 @@ badline/badline.prg                 4C00 2C02 3E8
 badline/badline.prg                 5C00 3C02 3E8
 badline/badline.prg                 6000 4002 1F41
 
-# Next effect?
+# The-end
+# Memory Map
+# ----------
+# Memory Map
+# ----------
+# $0800-$0be7 ScreenRam
+# $1000-$1048 Main Program
+# $1c00-$1fe7 ColorRam:
+# $2000-$3f3f Bitmap
+#
+the-end/the-end.prg                 0800 2 3e8
+the-end/the-end.prg                 1000 802 ff
+the-end/the-end.prg                 1c00 1402 3e8
+the-end/the-end.prg                 2000 1802 1f3f
