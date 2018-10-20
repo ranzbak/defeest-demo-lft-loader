@@ -99,15 +99,15 @@ endirq:
 
 //---------------------------------------
 text:
-  .text " deFEEST, does copy paste scrollers."
+  .text " deFEEST, does a more than one hour of coding demo."
   .text "                    "
   .text "                    "
   .byte $FF // back
-	.text " .rehtegot edoc eht teg su gnipleh rof stnemelE evisrevbuS ehT fo srebmem eht ot sknahT"
+	.text " .tfel ot thgir morf seog taht rellorcs a daer ot gniyonna tib a ti dnif thgim elpoep emoS"
   .text "                    "
   .text "                    "
   .byte $FF // forward
-	.text " Roses are red, violets are blue, deFEETS can't do poetry and so can't you."
+	.text " Roses are red, violets are blue, deFEEST can't do poetry and so can't you."
   .text "                    "
   .text "                    "
   .byte $FF // back

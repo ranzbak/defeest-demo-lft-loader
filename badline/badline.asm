@@ -24,7 +24,6 @@
 .const REG_INTSTAT         = $D019
 .const REG_BGCOLOUR        = $D021              // background colour register
 .const REG_INTSTATUS_1     = $DC0D              // interrupt control and status register #1
-.const REG_INTSTATUS_2     = $DD0D              // interrupt control and status register #2
 .const REG_VICBANK         = $DD02              // VIC bank switch variable, $DD00 stand alone, Spindle $DD02
 .const REG_ZERO_FE         = $fe                // Zero page cache
 .const REG_ZERO_FD         = $fd                // Zero page cache
@@ -43,15 +42,6 @@
 *=C_SCREEN_BANK + $1C00 "ColorRam:"; colorRam:  .fill picture.getColorRamSize(), picture.getColorRam(i)
 *=C_SCREEN_BANK + $2000 "Bitmap";       .fill picture.getBitmapSize(), picture.getBitmap(i)
 
-// Define macro
-.macro HandleTODIRQ() {
-    lda #$00000100 // Check for TOD interrupt status bit
-		bit $DC0D			 
-		beq !over+
-		lda #$0C                         // Illegal opcode NOP $FFFF, replace the jump command with a nop, this will end the loop
-		sta main_loop
-!over:
-}
 
 * = $2000 "Main Program"
 // Let the code begin
@@ -172,39 +162,39 @@ begin:
   lda #$ff
   sta $D015               // Enable sprites
 
+	// Set up the interrupt vector for NMI interrupts
+//	ldx #<HandleNMI       // set up nmi-vector in ram
+//	ldy #>HandleNMI
+//	stx $FFFA
+//	sty $FFFB
+
   // Start the main routine
-  asl REG_INTSTAT  // Ack any previous raster interrupt
 	lda $80			 // Set the 50Hz
-	sta $dd0e		
-  bit $dc0d    // reading the interrupt control registers
+	sta $DD0E		
 	lda $84			 // nmi on
-	sta $dd0d  
-  bit $dd0d
+	sta $DD0D  
+  lda $DD0D
 
-	// Setup Alarm
-	lda #%10000000 // Set Alarm
-	sta $dc0f
-	lda #$05  // 5 seconds
-	sta $DC09 // Alarm in seconds
-	lda #$00
-	sta $DC0B // Alarm Timer to 0 hours & stop timer
-	sta $DC0A // Alarm Timer to 0 minutes
-	sta $DC08 // Alarm Timer tenth of seconds 0 & start timer
-
+	// // Setup Alarm
+	// lda #%10000000 // Set Alarm
+	// sta $DD0F
+	// lda #$00
+	// sta $DD0B // Alarm Timer to 0 hours & stop timer
+	// lda #$05  // 5 seconds
+	// sta $DD09 // Alarm in seconds
+	// lda #$00
+	// sta $DD0A // Alarm Timer to 0 minutes
+	// sta $DD08 // Alarm Timer tenth of seconds 0 & start timer
 	
-	// Set current time
+	// Set the TOD timer to 00:00:00 AM
 	lda #%00000000 // Set time of day
-	sta $dc0f
+	sta $DD0F
 	lda #$00
-	sta $dc08 // Set tenth of seconds and stop timer 
-	sta $dc09 // Set seconds
-	sta $dc0a // Set minutes
-	sta $dc0b // Set hours and start timer
+	sta $DD0B // Set tenth of seconds and stop timer 
+	sta $DD0A // Set seconds
+	sta $DD09 // Set minutes
+	sta $DD08 // Set hours and start timer
 
-  // Enable TOD interrupt
-	lda #$00000100
-	sta $dc0d
-	
   cli
 
   // Wait for space for exit
@@ -230,11 +220,19 @@ apply_interrupt:
   stx REG_INTSERVICE_LOW          // FFFE
   sty REG_INTSERVICE_HIGH         // FFFF
 
-	HandleTODIRQ()
-
-  // jmp $ea81
   rti
 
+// Define macro
+// HandleNMI:
+// 	lda #$01
+// 	sta $d020
+// 	lda $DD0D			 
+// 	and #$04 // Check for TOD interrupt status bit
+// //	beq !over+
+// 	lda #$0C                         // Illegal opcode NOP $FFFF, replace the jump command with a nop, this will end the loop
+// 	sta main_loop
+// !over:
+// 	rti
 
 // intro sync ----------------------------------------------------------------------------------]
 // ---------------------------------------------------------------------------------------------]
@@ -432,6 +430,7 @@ sprite_multi:
 }
 
   jsr wait_space                  // Test if the space bar is pressed
+	jsr wait_timeout								// Is it time yet ?
 
   jmp hook_bitmap_end
 
@@ -867,7 +866,6 @@ scroller_render_offset:
   lsr
   sta scroller_character_mask + 1
 
-
   rts
 
 // Wait for space ------------------------------------------------------------------------------]
@@ -882,6 +880,19 @@ wait_space:
   sta main_loop
 !over:
   rts
+
+// Move on when needed--------------------------------------------------------------------------]
+// ---------------------------------------------------------------------------------------------]
+wait_timeout:	
+  lda #$50          // Time in seconds to time out
+  cmp $DD09
+  bne !over+
+    lda #$0C        // Kill main loop
+    sta main_loop
+!over:
+	rts
+
+
 
 // Variables -----------------------------------------------------------------------------------]
 // ---------------------------------------------------------------------------------------------]

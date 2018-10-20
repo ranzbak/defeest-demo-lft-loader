@@ -136,10 +136,28 @@ begin:
   asl INTSTATREG  // Ack any previous raster interrupt
   bit $dc0d				// reading the interrupt control registers
   bit $dd0d				// clears them
+
+	// Initiliaze TOD timer in CIA2
+  // Start the main routine
+	lda $80			 // Set the 50Hz
+	sta $DD0E		
+	lda $84			 // nmi on
+	sta $DD0D  
+  lda $DD0D
+
+	// Set the TOD timer to 00:00:00 AM
+	lda #%00000000 // Set time of day
+	sta $DD0F
+	lda #$00
+	sta $DD0B // Set tenth of seconds and stop timer 
+	sta $DD0A // Set seconds
+	sta $DD09 // Set minutes
+	sta $DD08 // Set hours and start timer
+
   cli							// Allow IRQ's
 
 	// Main until space is pressed
-	jsr wait_space
+	jsr wait_space_time
 
 	// Stop raster interrupts
 	lda #%00000000
@@ -179,14 +197,23 @@ begin:
 	rts
 
 	// Wait for space key
-wait_space:
+wait_space_time:
+	// timout?
+	sei
+  lda #$50          // Time in seconds to time out
+  cmp $DD09
+  bne !over+
+		rts							// Done time is reached
+!over:
+	cli
+	// space pressed?
 	sei				// SEI and CLI are needed around this routine
 	lda #$7F  //%01111111
 	sta $DC00
 	lda $DC01
 	and #$10  //mask %00010000
 	cli
-	bne wait_space
+	bne wait_space_time
 release_space:
 	sei				// When interrupts aren't disabled this just won't work
 	lda #$7f	// %01111111

@@ -4,7 +4,7 @@ if [[ -f badline.prg ]]; then
 fi
 
 # Build the object
-java -jar ../../KickAss.jar badline.asm
+java -jar $KICKASM badline.asm
 
 if [[ -f badline.prg ]]; then
   x64 badline.prg
