@@ -30,8 +30,15 @@ badline/badline.prg                 5C00 3C02 3E8
 badline/badline.prg                 6000 4002 1F41
 
 # Memory Map
-#$2000-$2203 Horizontal drop
-#$3000-$30bf Sprite
+# ----------
+# $0800-$09ff Unnamed
+# $1000-$1812 Main Program
+sinusstuff/sinusstuff.prg           800  2   200
+sinusstuff/sinusstuff.prg           1000 802 812
+
+# Memory Map
+# $2000-$2203 Horizontal drop
+# $3000-$30bf Sprite
 hborder/hborder.prg                 2000 2 2c0
 hborder/hborder.prg                 3000 1002 c1
 

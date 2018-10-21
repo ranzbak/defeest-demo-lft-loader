@@ -130,6 +130,14 @@ rolloop:
 	// Badline
 	jsr $2000
 
+	// Load Sinusstuff
+	cli
+	jsr $c90
+	clc
+
+	// Sinusstuff
+	jsr $1000
+
 	// Load the Hborder effect
 	cli
 	jsr $c90

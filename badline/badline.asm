@@ -175,17 +175,6 @@ begin:
 	sta $DD0D  
   lda $DD0D
 
-	// // Setup Alarm
-	// lda #%10000000 // Set Alarm
-	// sta $DD0F
-	// lda #$00
-	// sta $DD0B // Alarm Timer to 0 hours & stop timer
-	// lda #$05  // 5 seconds
-	// sta $DD09 // Alarm in seconds
-	// lda #$00
-	// sta $DD0A // Alarm Timer to 0 minutes
-	// sta $DD08 // Alarm Timer tenth of seconds 0 & start timer
-	
 	// Set the TOD timer to 00:00:00 AM
 	lda #%00000000 // Set time of day
 	sta $DD0F
@@ -221,18 +210,6 @@ apply_interrupt:
   sty REG_INTSERVICE_HIGH         // FFFF
 
   rti
-
-// Define macro
-// HandleNMI:
-// 	lda #$01
-// 	sta $d020
-// 	lda $DD0D			 
-// 	and #$04 // Check for TOD interrupt status bit
-// //	beq !over+
-// 	lda #$0C                         // Illegal opcode NOP $FFFF, replace the jump command with a nop, this will end the loop
-// 	sta main_loop
-// !over:
-// 	rti
 
 // intro sync ----------------------------------------------------------------------------------]
 // ---------------------------------------------------------------------------------------------]

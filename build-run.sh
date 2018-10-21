@@ -44,6 +44,7 @@ build_kickasm defeest-intro/Movesprite
 build_kickasm badline/badline
 build_kickasm hborder/hborder
 build_kickasm the-end/the-end
+build_kickasm sinusstuff/sinusstuff
 
 # Build plasma effect
 pushd ecmplasma
