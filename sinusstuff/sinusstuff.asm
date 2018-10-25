@@ -66,8 +66,7 @@ begin:
   ora #%00100000       // Enable bitmap mode bit 6
   sta SCRCONTREG
 
-  lda MEMSETREG        // Remap the graphics memory to $2000-$3FFF
-  ora #%00001000
+  lda #$1f        // Remap the graphics memory to $2000-$3FFF
   sta MEMSETREG
 
 	lda #$3c						 // Bank switch the VIC to the first bank $0000-$3fff
