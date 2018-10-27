@@ -36,12 +36,16 @@ badline/badline.prg                 6000 4002 1F41
 sinusstuff/sinusstuff.prg           800  2   200
 sinusstuff/sinusstuff.prg           1000 802 812
 
-# Memory Map
-# $2000-$2203 Horizontal drop
-# $3000-$30bf Sprite
-hborder/hborder.prg                 2000 2 2c0
-hborder/hborder.prg                 3000 1002 c1
-
+# $1c00-$1fe7 ColorRam:
+# $2000-$2254 Horizontal drop    NB upped to 500 just in case of code growth
+# $4400-$47e7 ScreenRam
+# $6000-$7f3f Bitmap
+# $8000-$80bf Sprite
+hborder/hborder.prg		  1c00 2 3e7 
+hborder/hborder.prg		  2000 402 500
+hborder/hborder.prg		  4400 2802 3e7
+hborder/hborder.prg		  6000 4402 1f3f
+hborder/hborder.prg		  8000 6402 bf
 
 # The-end
 # Memory Map

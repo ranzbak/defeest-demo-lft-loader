@@ -1,4 +1,7 @@
 //BasicUpstart2(begin)                            // <- This creates a basic sys line that can start your program
+
+.var picture = LoadBinary("./commy.kla", BF_KOALA)
+
 * = $2000 "Horizontal drop"    // <- The name 'Main program' will appear in the memory map when assembling   jsr clear
 
 // Main
@@ -29,38 +32,52 @@ begin:
   bit $dc0d                             // reading the interrupt control registers 
   bit $dd0d                             // clears them
 
-//        lda #00                                 // Clear border garbage
-//        sta $3fff
+        lda #00                                 // Clear border garbage
+        sta $3fff
 
- lda #$20
-!loop:   
-	sta $0400,x
-	sta $0500,x
-	sta $0600,x
-	sta $0700,x
-	dex
-	bne !loop-
+	
 
-lda #$00
-!loop:
-	sta $d800,x
-	dex
-	bne !loop-
+  lda #$0
+  sta $D020
+  sta $D021
+
+	// Koala
+	lda #$18                        // bitmap at $2000, Screen memory at $1800
+                        sta $d018
+                        lda #$d8                        // Multi color 40 columns
+                        sta $d016
+                        lda #$3b
+                        sta $d011                       // Bitmap mode on, screen visible, 25 roms, 011 vertical scroll
+                        lda #BLACK
+                        sta $d020                       // Border color black
+                        lda #picture.getBackgroundColor()
+                        sta $d021                       // set background color
+                        lda #$3d                      // VIC bank 4000-7FFF 
+                        sta $dd02	 		// Spindle version
+//			lda #$02			// VIC bank 4000-7FFF
+//                        sta $dd00	 		// Native version
+                        ldx #0
+loop1:          
+                        .for (var i=0; i<4; i++) {
+                                lda colorRam+i*$100,x
+                                sta $d800+i*$100,x
+                        }
+                        inx
+                        bne loop1
+
+	
 
 	lda #$1a
-	sta $400 + $7f8
+	sta $4400 + $7f8
 	lda #$1b
-	sta $400 + $ff8
-
-	lda #$15
-	sta $d018
+	sta $4400 + $ff8
 
         lda #$0D                                // Using block 13 for Sprite 0
-        sta $7f8
+        sta $47f8
         lda #$0E                                // Using block 14 for Sprite 0
-        sta $7f9
+        sta $47f9
         lda #$0F                                // Using block 15 for Sprite 0
-        sta $7fA
+        sta $47fA
 
         lda #%00000111                          // Enable sprite 0, 1 and 2
         sta $D015
@@ -93,18 +110,18 @@ lda #$00
         sta $D01D                               // Double X
         sta $D017                               // Double Y
 
-  lda #$ff
-  sta $D01B               // Sprites behind graphics sprites
+  lda #$00
+  sta $D01B               // Sprites in front
 
         ldx #0                                  // Copy sprite into sprite memory
 
 !loop:
         lda defeest_sprite0, x
-        sta $0340, x
+        sta $4340, x
         lda defeest_sprite1, x
-        sta $0340+64, x
+        sta $4340+64, x
         lda defeest_sprite2, x
-        sta $0340+128, x
+        sta $4340+128, x
         inx 
         cpx #63
         bne !loop-
@@ -171,8 +188,8 @@ irq_midway:
 
 	lda yloc
 	jsr binhex
-	sta $0400       // counter msn to screen
-	stx $0401	// counter lsm to screen
+//	sta $0400       // counter msn to screen
+//	stx $0401	// counter lsm to screen
 
         lda firstrun
         bne skip
@@ -338,7 +355,7 @@ yloc: .byte $00, $00
 firstrun: .byte $00
 
 // define the sprite data
-.pc = $3000 "Sprite"
+.pc = $8000 "Sprite"
 .align $40
 
 ;// sprite0
@@ -414,3 +431,9 @@ defeest_sprite2:
 .byte $40,$00,$00
 .byte 0
 
+*=$4400 "ScreenRam";                                            .fill picture.getScreenRamSize(), picture.getScreenRam(i)
+*=$1c00 "ColorRam:"; colorRam:  .fill picture.getColorRamSize(), picture.getColorRam(i)
+*=$6000 "Bitmap";                                                               .fill picture.getBitmapSize(), picture.getBitmap(i)
+
+.print "ScreenRam="+picture.getScreenRamSize()+","+picture.getScreenRam(0)
+.print "Koala format="+BF_KOALA
