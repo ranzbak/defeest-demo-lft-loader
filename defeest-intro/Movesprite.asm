@@ -200,9 +200,12 @@ begin:
 wait_space_time:
 	// timout?
 	sei
+	lda #$01
+	cmp $DD0A
+	bne !over+				// minutes
   lda #$50          // Time in seconds to time out
   cmp $DD09
-  bne !over+
+  bne !over+			  // seconds
 		rts							// Done time is reached
 !over:
 	cli

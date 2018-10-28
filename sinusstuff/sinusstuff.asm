@@ -4,6 +4,18 @@
 //* Sinus animation in Bitplain                   *
 //*************************************************
 
+.const C_SCREEN_BANK       = $4000              // screen bank base address
+.const C_SCREEN_RAM        = C_SCREEN_BANK + $1800 // Screen Ram location
+
+// Tell the assembler where the SID is
+.var music = LoadSid("break-progress-03.sid")
+
+// Tell the assembler where the Koala file is
+.var picture = LoadBinary("Black_Hole_Milkyway.kla", BF_KOALA)
+*=C_SCREEN_RAM          "ScreenRam";      .fill picture.getScreenRamSize(), picture.getScreenRam(i)
+*=C_SCREEN_BANK + $1C00 "ColorRam:"; colorRam:  .fill picture.getColorRamSize(), picture.getColorRam(i)
+*=C_SCREEN_BANK + $2000 "Bitmap";       .fill picture.getBitmapSize(), picture.getBitmap(i)
+
 // Raster debug ?
 .const DEBUG = 0
 
@@ -26,7 +38,7 @@
 
 
 // Start of the main program
-* = $1000 "Main Program"
+* = $2000 "Main Program"
 begin:
 
   //
@@ -46,34 +58,27 @@ begin:
   sta $D020
   sta $D021
 
-  //
-  // Clear character memory
-  ldx #$00
-  lda #$00     // First few rows all black to hide sprite memory
-!clear:
-  sta $0400,x  // fill four areas with 256 space bar characters
-  inx           // increment X
-  bne !clear-   // did X turn to zero yet?
-  lda #$10      // After that white for effect
-!clear:
-  sta $0500,x
-  sta $0600,x
-  sta $06e8,x
-  inx           // increment X
-  bne !clear-   // did X turn to zero yet?
-
   lda SCRCONTREG       // Put the VIC into bitmap graphics mode
   ora #%00100000       // Enable bitmap mode bit 6
   sta SCRCONTREG
 
-  lda #$1f        // Remap the graphics memory to $2000-$3FFF
+  lda #$6f        // Remap the graphics memory to VIC bank + $2000-$3FFF
   sta MEMSETREG
 
-	lda #$3c						 // Bank switch the VIC to the first bank $0000-$3fff
+// DEBUG restore when running in spindle
+	lda #$3d						 // Bank switch the VIC to the first bank $4000-$7fff
 	sta $dd02
+//	lda #$02
+//	sta $dd00
+
+	lda #$18
+	sta $D016
+
+	// Setup the SID file
+	jsr setup_sid
 
   // Clear the bitmap
-  jsr clearbitmap
+  // jsr clearbitmap
 
 	// Setup the sprites in the scroller
 	jsr setup_sprites
@@ -94,6 +99,10 @@ begin:
 // Ad infinitum, until self modifying code magic happens.
 main_loop:
   jmp *
+
+	// Silence SID
+	lda #$00
+	sta $d418
 
 	// Hide sprites
 	lda #$00
@@ -239,20 +248,20 @@ setup_sprites:
 	sta $D01B											// draw in front of screen content
 	
 
-  ldx #sprite0/64               // Calculate sprite start address
-  stx $07F8
+  ldx #(sprite0-C_SCREEN_BANK)/64               // Calculate sprite start address
+  stx C_SCREEN_RAM + $03F8
   inx
-  stx $07F9
+  stx C_SCREEN_RAM + $03F9
   inx
-  stx $07FA
+  stx C_SCREEN_RAM + $03FA
   inx
-  stx $07FB
+  stx C_SCREEN_RAM + $03FB
   inx
-  stx $07FC
+  stx C_SCREEN_RAM + $03FC
   inx
-  stx $07FD
+  stx C_SCREEN_RAM + $03FD
   inx
-  stx $07FE
+  stx C_SCREEN_RAM + $03FE
 
 
   lda #$32                      //Y-Position for all sprites
@@ -427,7 +436,7 @@ clearbitmap:
   ldx #$00
   txa
 !:
-  sta clraddr:$2000, x  // write 0 to display memory
+  sta clraddr: C_SCREEN_BANK + $2000, x  // write 0 to display memory
 	inx
 	bne !-
 
@@ -579,6 +588,9 @@ shiftall:
 	// Sprites to the bottom of the screen
 	jsr sprite_bottom
 
+	// Update the SID playing
+	jsr music.play
+
 	// Back to the effect IRQ
   lda #<effect_irq
   sta INTVEC
@@ -654,6 +666,17 @@ wait_timeout:
 !over:
 	rts
 
+// Setup SID file-------------------------------------------------------------------------------]
+// ---------------------------------------------------------------------------------------------]
+setup_sid:	
+	ldx #0
+	ldy #0
+	lda #music.startSong-1
+	jsr music.init
+	rts
+
+
+
 infotext:                       // Scroller text
   // !convtab scr
   .text "this sprite scroller will be a pain to combine with the pixel effect below, where do we get the raster time?? i don't know but we'll see i guess...... "
@@ -670,7 +693,7 @@ infotextbitpos:
 .align $100
 yoffsettab:
 .var countloop=0
-.for(var base=$2000; base<$3FFF; base=base+$140) {
+.for(var base=C_SCREEN_BANK + $2000; base< C_SCREEN_BANK + $3FFF; base=base+$140) {
   .for(var offset=0; offset<8; offset++) {
     .word (base+offset)
   //  .print "" + (countloop) + ":"  + (base+offset-8192) + " : " + (base+offset)
@@ -704,7 +727,7 @@ piroffy:  .byte $21    // Period offset
 pixrm:   .fill 100, 0  // List of bytes to remove
 pixcn:   .byte 0       // Array counter
 
-.pc = $0800
+.pc = C_SCREEN_BANK + $0400 "Sprites"
 
 //*** Zero the 8 sprites
 .align $400
@@ -716,3 +739,7 @@ sprite4: .fill 64, 0
 sprite5: .fill 64, 0
 sprite6: .fill 64, 0
 sprite7: .fill 64, 0
+
+// Place the SID file into memory
+* = music.location "Music"
+.fill music.size, music.getData(i)

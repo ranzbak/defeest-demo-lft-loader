@@ -130,7 +130,7 @@ rolloop:
 	// Badline
 	jsr $2000
 
-	lda #$10
+	lda #$00
 	sta $d011	// screen off
 	// Load Sinusstuff
 	cli
@@ -138,9 +138,9 @@ rolloop:
 	clc
 
 	// Sinusstuff
-	jsr $1000
+	jsr $2000
 
-	lda #$10
+	lda #$00
 	sta $d011	// screen off
 	// Load the Hborder effect
 	cli
@@ -149,6 +149,9 @@ rolloop:
 
 	// Hborder
 	jsr $2000
+
+	lda #$00
+	sta $d011	// screen off
 
 	// Load the-end
 	cli
