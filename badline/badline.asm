@@ -29,16 +29,16 @@
 .const REG_ZERO_FD         = $fd                // Zero page cache
 
 // constants
-.const C_SCREEN_BANK       = $4000              // screen bank base address
-.const C_SCREEN_RAM        = C_SCREEN_BANK + $0400 // screen RAM
-.const C_COLOUR_RAM        = $d800              // colour ram
+.const C_SCREEN_BANK       = $4000								 // screen bank base address
+.const C_SCREEN_RAM        = C_SCREEN_BANK + $0400 // screen RAM for the text scroller
+.const C_COLOUR_RAM        = $d800								 // colour ram
 .const C_CHARSET           = C_SCREEN_BANK + $3800 // Alternate Character bank
 .const C_CHARSET_HIGH      = C_SCREEN_BANK + $3900 // Arternate Character bank HI
 
 
 // Koala resource
 .var picture = LoadBinary("defeest-fullscreen.kla", BF_KOALA)
-*=C_SCREEN_BANK + $C00 "ScreenRam";      .fill picture.getScreenRamSize(), picture.getScreenRam(i)
+*=C_SCREEN_BANK + $0C00 "ScreenRam";      .fill picture.getScreenRamSize(), picture.getScreenRam(i)
 *=C_SCREEN_BANK + $1C00 "ColorRam:"; colorRam:  .fill picture.getColorRamSize(), picture.getColorRam(i)
 *=C_SCREEN_BANK + $2000 "Bitmap";       .fill picture.getBitmapSize(), picture.getBitmap(i)
 
@@ -188,10 +188,20 @@ begin:
 
   // Wait for space for exit
 main_loop: jmp *
+//	sei
+//	// Setup the interrupt routine that does the fade out
+//	lda #200
+//	sta REG_RASTERLINE
+//	lda #<fade_out
+//	sta REG_INTSERVICE_LOW
+//	lda #>fade_out
+//	sta REG_INTSERVICE_HIGH
+//	cli
+//main_loop_fade: jmp *
 
   // Back to normal text screen
 	sei
-
+	ldy #$00
   lda #$00
   sta $d01a               // Disable raster interrupt
   sta $d015							  // Disable Sprites
@@ -200,6 +210,79 @@ main_loop: jmp *
   cli
 
   rts                     // Back to the load routine
+
+// Fade out screen -----------------------------------------------------------------------------]
+// ---------------------------------------------------------------------------------------------]
+// fade_out:
+//   inc REG_INTFLAG // Ack interrupt
+// 
+// .if (DEBUG==1) {
+// 	lda #$01
+// 	sta $d020
+// }
+// 
+// 	iny  // Frame counter in Y
+// 
+// 	// Terminate when the fade effect is done
+// 	tya
+// 	cmp #61
+// 	bne !over+
+//   lda #$0C                         // Illegal opcode NOP $FFFF, replace the jump command with a nop, this will end the loop
+//   sta main_loop_fade
+// !over:
+// 
+// 	// Blue
+// 	tya
+// 	cmp #20
+// 	bne !over+
+// 	lda #$bb
+// 	sta fade_color
+// !over:
+// 
+// 	// Dark blue
+// 	tya
+// 	cmp #40
+// 	bne !over+
+// 	lda #$66
+// 	sta fade_color
+// !over:
+// 
+// 	// Black
+// 	tya
+// 	cmp #60
+// 	bne !over+
+// 	lda #$00
+// 	sta fade_color
+// !over:
+// 			
+// 	// Replace the screen memory with the fade color
+// 	ldx #00
+// 	lda fade_color: #$EE
+// 	// fade sprites
+// 	sta $d027
+// 	sta $d028
+// 	sta $d029
+// 	sta $D02a
+// 	sta $d02b
+// 	sta $d02c
+// 	sta $d02d
+// 	sta $d02e
+// 
+// 	// Fade screen and color ram
+//   !loop:
+//   .for (var i=0; i<4; i++) {
+//     sta C_SCREEN_BANK+$0C00+i*$100,x
+//     sta C_COLOUR_RAM+i*$100,x
+//   }
+//   inx
+//   bne !loop-
+// 
+// .if (DEBUG==1) {
+// 	lda #$00
+// 	sta $d020
+// }
+// 
+// 	rti
 
 
 // helper routines -----------------------------------------------------------------------------]
