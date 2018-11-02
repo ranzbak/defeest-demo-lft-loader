@@ -24,7 +24,14 @@ defeest-intro/defeest-anoy3.sid      1000 7e
 # $5c00-$5fe7 ColorRam:
 # $6000-$7f3f Bitmap
 #
-badline/badline.prg                 2000 2 AFF
+# Memory Map
+# ----------
+# $2000-$2b30 Main Program
+# $4c00-$4fe7 ScreenRam
+# $5c00-$5fe7 ColorRam:
+# $6000-$7f3f Bitmap
+#
+badline/badline.prg                 2000 2 c00
 badline/badline.prg                 4C00 2C02 3E8
 badline/badline.prg                 5C00 3C02 3E8
 badline/badline.prg                 6000 4002 1F41

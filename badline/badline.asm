@@ -598,6 +598,10 @@ hook_apply_hw_scroll:
   jmp apply_interrupt
 
 apply_hardware_scroll:
+	nop												 // Fixes raster artifact
+	nop
+	nop
+	nop
   lda #$c0                   // 38 column
 scroller_amount:
   ora #007                   // + hardware scroll Self modifying
