@@ -1,8 +1,13 @@
 //BasicUpstart2(begin)                            // <- This creates a basic sys line that can start your program
 
-.var picture = LoadBinary("./commy.kla", BF_KOALA)
+.var picture = LoadBinary("./p01.kla", BF_KOALA)
 
 * = $2000 "Horizontal drop"    // <- The name 'Main program' will appear in the memory map when assembling   jsr clear
+
+.const DEBUG = 1
+.const INTERUPT = 0
+.const KEEP_SPRITES = 0
+.const SKIP_JUMP = 1
 
 // Main
 begin:
@@ -32,14 +37,8 @@ begin:
   bit $dc0d                             // reading the interrupt control registers 
   bit $dd0d                             // clears them
 
-        lda #00                                 // Clear border garbage
-        sta $3fff
-
-	
-
-  lda #$0
-  sta $D020
-  sta $D021
+  lda #00                                 // Clear border garbage
+  sta $3fff
 
 	// Koala
 	lda #$18                        // bitmap at $2000, Screen memory at $1800
@@ -48,8 +47,8 @@ begin:
                         sta $d016
                         lda #$3b
                         sta $d011                       // Bitmap mode on, screen visible, 25 roms, 011 vertical scroll
-                        lda #BLACK
-                        sta $d020                       // Border color black
+                        lda #$0
+			sta $d020                       // Border color black
                         lda #picture.getBackgroundColor()
                         sta $d021                       // set background color
                         lda #$3d                      // VIC bank 4000-7FFF 
@@ -145,9 +144,11 @@ irq_top_sprites:
         lda $DC0D
         stx $03
         sty $04
-        lda #1                                  // Border to white
+.if(DEBUG == 1){
+        lda #0                                  // Border to black
         sta $d020
         sta $d021
+}
 
         lda #55                                // raster interrupt just a bit lower of the screen
         sta $d012
@@ -157,11 +158,15 @@ irq_top_sprites:
         stx $FFFF
 
         lda sprites_0_nreg: #$00                // Disable sprite 0-2
+.if(KEEP_SPRITES == 0){
         sta $d015
+}
 
-        lda #0                                  // Border to black
+.if(DEBUG == 1){
+        lda #picture.getBackgroundColor()                                  // Border to black
         sta $d020
         sta $d021
+}
 
         lda #$01
         sta $D019
@@ -175,10 +180,11 @@ irq_midway:
         lda $DC0D
         stx $03
         sty $04
-        lda #1                                  // Border to white
+.if(DEBUG == 1){
+        lda #0                                  // Border to black
         sta $d020
         sta $d021
-
+}
         lda #249                                // raster interrupt just a bit lower of the screen
         sta $d012
         lda #<irq_24
@@ -187,21 +193,22 @@ irq_midway:
         stx $FFFF
 
 	lda yloc
-	jsr binhex
+//	jsr binhex
 //	sta $0400       // counter msn to screen
 //	stx $0401	// counter lsm to screen
 
         lda firstrun
-        bne skip
-        lda #%00000111
+        bne !skip+
+        lda #%00000111	// sprites back on
         sta $d015
-skip:
-        lda $02
+!skip:
+        lda #$02
         sta firstrun
-
-        lda #0                                  // Border to black
+.if(DEBUG == 1){
+        lda #picture.getBackgroundColor()                                  // Border to black
         sta $d020
         sta $d021
+}
         lda #$01
         sta $D019
         ldy $04
@@ -215,9 +222,11 @@ irq_24:
         lda $DC0D
         stx $03
         sty $04
-        lda #1                                  // Border to white
+.if(DEBUG == 1){
+        lda #0                                  // Border to black
         sta $d020
-
+        sta $d021
+}
         lda $d011                               // Clear bit 3 to enable 24 line mode
         and #%11110111
         sta $d011
@@ -231,34 +240,56 @@ irq_24:
 
         jsr wait_space      
 
-//        ldx #$FD      	// setup kbd matrix
-//        stx $DC00
-//        lda $dc01       // read kbd matrix 
-//	and #%00100000	
-//        bne !over+      // step through version
-        
+.if(INTERUPT == 1){
+        ldx #$FD      	// setup kbd matrix
+        stx $DC00
+        lda $dc01       // read kbd matrix 
+	and #%00100000	// key S
+        bne !over+      // step through version
+}
         clc
-        lda #252
+        lda #$252
         sbc yloc
         bcs !kill_top_sprites+
+.if(KEEP_SPRITES == 0) {
         lda #$00
-        sta sprites_0_nreg              
+        sta sprites_0_nreg
+}              
 !kill_top_sprites:
 
         inc yloc // increment y pos
         lda yloc
         bne overflow
-        adc #01
+        adc #$01
 overflow:
-
+	tay
+.if(SKIP_JUMP == 0){
+	lda #$01
+	cmp yflag
+	beq !skip+
+	
+	lda #$30		// on 30 on y
+	cmp yloc
+	bne !skip+
+	jsr flip_overflow
+!skip:
+	lda #$72		// on 72 on y
+	cmp yloc
+	bne !skip+
+	jsr flip_back
+}
+!skip:
+	tya
         sta $D001                             // Sprite position Y inc 0
         sta $D003                             // Sprite position Y inc 1
         sta $D005                             // Sprite position Y inc 2
 
 !over:
-
-        lda #0                                  // Border to black
+.if(DEBUG == 1){
+        lda #picture.getBackgroundColor()                                  // Border to black
         sta $d020
+	sta $d021
+}
 
         lda #$01
         sta $D019
@@ -273,9 +304,11 @@ irq_25:
         lda $DC0D
         stx $03
         sty $04
+.if(DEBUG == 1){
         lda #7                                  // Border to yellow
         sta $d020
         sta $d021
+}
 
         lda $d011                               // Set bit 3 to enable 25 line mode
         ora #%00001000
@@ -288,9 +321,11 @@ irq_25:
         sta $FFFE
         stx $FFFF
 
-        lda #0                                  // Border to black
+.if(DEBUG == 1){
+        lda #picture.getBackgroundColor()                                  // Border to black
         sta $d020
         sta $d021
+}
 
         lda #$01
         sta $D019
@@ -309,6 +344,53 @@ wait_space:
         sta main_loop
 !over:
         rts
+
+
+flip_overflow:
+        lda #$03                                  // Border to some color
+        sta $d020
+        sta $d021
+
+	lda #$01
+	cmp yflag
+	beq !over+
+
+	lda #$01
+	sta yflag	
+
+	lda #$207
+	sta yloc
+!over:
+	lda #$0
+        sta $d020
+        lda #picture.getBackgroundColor()                                  // Border to black
+        sta $d021
+	rts
+
+flip_back:
+        lda #$04                                  // Border to some color
+        sta $d020
+        sta $d021
+
+        lda #$00
+        cmp yflag
+        beq !over+
+
+        lda #$03
+        cmp yflag
+        beq !over+
+
+        lda #$03
+        sta yflag
+
+        lda #$30
+        sta yloc
+!over:
+	lda #$0
+        sta $d020
+        lda #picture.getBackgroundColor()                                  // Border to black
+        sta $d021
+	rts
 
 /*================================================================================
 ;
@@ -353,6 +435,7 @@ finalize_nybble:
 
 yloc: .byte $00, $00
 firstrun: .byte $00
+yflag: .byte $00
 
 // define the sprite data
 .pc = $8000 "Sprite"
