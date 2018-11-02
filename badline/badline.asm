@@ -336,7 +336,7 @@ sync_intro:
   ldx #$00                        // Make sure the scroller is white
 !loop:
   //sta C_COLOUR_RAM + $2e8, x
-  sta C_COLOUR_RAM + $2f9, x
+  sta C_COLOUR_RAM + $2f8, x
   sta C_SCREEN_BANK + $700, x
   inx
   bne !loop-
@@ -601,7 +601,6 @@ apply_hardware_scroll:
 	nop												 // Fixes raster artifact
 	nop
 	nop
-	nop
   lda #$c0                   // 38 column
 scroller_amount:
   ora #007                   // + hardware scroll Self modifying
@@ -832,7 +831,7 @@ scroller_shift_loop:
   bpl render_next_scroll_colm     // detect if we need to render a new character, or are still rendering current character (each letter is 4 chars wide)
 
 scroller_message_index:
-  ldx #000                        // time to render a new character, so set up some which character to render and the bit mask
+  ldx #$00                        // time to render a new character, so set up some which character to render and the bit mask
 read_next_scroller_char:
   lda scroller_message, x         // grab next character to render
   bpl advance_scroller_index      // detect end of message control character
