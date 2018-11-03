@@ -6,7 +6,6 @@
 
 .const VIC_OFFSET = $4000
 .const KEEP_SPRITES = 0
-.const DEBUG = 1
 .const RASTER_DEBUG = 0
 .const STEP_THROUGH = 0
 
@@ -60,8 +59,8 @@ begin:
     inx
   bne loop1
 
-  //lda #2
-  //sta $dbe7 
+//  lda #3
+//  sta $dbe7 
 
   lda #$1a
   sta $4400 + $7f8
@@ -171,41 +170,6 @@ irq_252:
     sta $d020
     sta $d021
   }
-
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
 
   jsr flip_back 
 
@@ -330,77 +294,6 @@ irq_55:
     lda #0                                // Border and bkg to black 
     sta $d020
     sta $d021
-  }
-  .if(DEBUG == 1){
-    lda yloc
-    jsr binhex
-    sta $0400       // counter msn to screen
-    stx $0401       // counter lsm to screen
-    
-    lda yflags
-    jsr binhex
-    sta $0403       // counter msn to screen
-    stx $0404       // counter lsm to screen
-
-    lda flipline
-    jsr binhex
-    sta $0406       // counter msn to screen
-    stx $0407       // counter lsm to screen
-  } else {
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
   }
   
   lda #$01  // copy registers back and Acknowledge raster interrup 
@@ -540,48 +433,9 @@ wait_space:
 !over:
         rts
 
-/*================================================================================
-;
-;binhex: CONVERT BINARY BYTE TO HEX ASCII CHARS
-;
-;   ————————————————————————————————————
-;   Preparatory Ops: .A: byte to convert
-;
-;   Returned Values: .A: MSN ASCII char
-;                    .X: LSN ASCII char
-;                    .Y: entry value
-;   ————————————————————————————————————
-*/
-binhex:
-  pha                   // save byte
-  and #%00001111        // extract LSN
-  tax                   // save it
-  pla                   // recover byte
-  lsr                   // extract...
-  lsr                   // MSN
-  lsr
-  lsr
-  pha                   // save MSN
-  txa                   // LSN
-  jsr convert_nybble    // generate ASCII LSN
-  tax                   // save
-  pla                   // get MSN & fall thru
-
-//  convert nybble to hex ASCII equivalent...
-convert_nybble:
-  cmp #$0a
-  bcc finalize_nybble   // in decimal range
-  adc #$46              // hex compensate
-
-finalize_nybble:
-  adc #$30              // finalize nybble
-  and #%01111111
-  rts                   // done
-
 // variables
 yloc: .byte $00, $00
 yflags: .byte $00
-flipline: .byte $00
 
 // define the sprite data
 .pc = $8000 "Sprite"
