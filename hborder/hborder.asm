@@ -157,6 +157,8 @@ begin:
 
 main_loop:
   jmp *                                 // Endless loop
+ 
+  rts
 
 irq_252:
   sta $02		// copy registers and acknowlege interupt
