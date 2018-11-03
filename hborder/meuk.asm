@@ -1,11 +1,15 @@
-BasicUpstart2(begin)   
+BasicUpstart2(begin)  
+
+.var anus = LoadBinary("./anus.kla", BF_KOALA)
+.var ranzbak = LoadBinary("./ranzbak.kla", BF_KOALA)
+.var cinder = LoadBinary("./cinder.kla", BF_KOALA)
 
 * = $2000 "Horizontal drop"  // <- The name 'Main program' will appear in the memory map when assembling   jsr clear
 
 .const VIC_BANK = 0
 .const KEEP_SPRITES = 0
-.const DEBUG = 1
-.const STEP_THROUGH = 1
+.const DEBUG = 0
+.const STEP_THROUGH = 0
 
 // Main
 begin:
@@ -39,8 +43,12 @@ begin:
 
   lda #$0D                        // Using block 13 for Sprite 0
   sta $07f8+VIC_BANK
+  lda #$0E                                // Using block 14 for Sprite 0
+  sta $07f9+VIC_BANK
+  lda #$0F                                // Using block 15 for Sprite 0
+  sta $07fA+VIC_BANK
 
-  lda #%000000001                        // Enable sprite 0, 1 and 2
+  lda #%000000111                        // Enable sprite 0, 1 and 2
   sta $D015
 
   lda #$07                              // multicolor register 0 to yellow
@@ -51,7 +59,7 @@ begin:
   lda #$01
   sta $d027
 
-  lda #%00000001                        // Set multicolor sprite 0-2
+  lda #%00000111                        // Set multicolor sprite 0-2
   sta $d01c
 
   lda #0                                // Sprite MSB X to 0
@@ -59,12 +67,18 @@ begin:
 
   ldx #100                              // Set X position of sprite 0
   stx $D000
+  ldx #148                                // Set X position of sprite 1
+  stx $D002
+  ldx #196                                // Set X position of sprite 2
+  stx $D004
  
   lda #30                               // Start of logo (30)
   sta yloc
   sta $D001                             // Set y for sprite 0
+  sta $D003                               // Set y for sprite 1
+  sta $D005                               // Set y for sprite 2
 
-  lda #%00000001                        // Set sprite 0-2 double size 
+  lda #%00000111                        // Set sprite 0-2 double size 
   sta $D01D                             // Double X
   sta $D017                             // Double Y
 
@@ -75,6 +89,10 @@ begin:
   !loop:
     lda defeest_sprite0, x
     sta $0340+VIC_BANK, x
+    lda defeest_sprite1, x
+    sta $0340+64+VIC_BANK, x
+    lda defeest_sprite2, x
+    sta $0340+128+VIC_BANK, x
     inx
     cpx #63
   bne !loop-
@@ -140,41 +158,10 @@ irq_00:
 
   lda #$01
   cmp yflags		// yflags is $01
-  bne !skipmore+
-    lda #%0000001
+  bne !skip+
+    lda #%0000111
     sta $d015
-    clc
-    lda #$0
-    sbc yloc	
-    bcs !skip+
-      clc
-      lda #$18
-      sbc yloc
-      bcc !skip+
-        .if(KEEP_SPRITES == 0){
-          //lda #$00              // Disable sprites 
-          //sta $d015
-        }
-     //   clc			// just in case
-     //   lda yloc
-     //   sbc #$19	// way way wayyyyy lower
-     //   adc #230
-        lda #55
-        sta flipline
-        sta $d012                // turn sprites back on  from flipline      
-        lda #<irq_55
-        ldx #>irq_55
-        sta $FFFE
-        stx $FFFF
-        jmp !skipmore+
-    !skip:
-    lda #55                              // raster interrupt just a bit lower of the screen
-    sta $d012                        // turn sprites back on unless first time
-    lda #<irq_55
-    ldx #>irq_55
-    sta $FFFE
-    stx $FFFF 
-  !skipmore:
+  !skip:
 
   lda #$01
   cmp yflags
@@ -187,13 +174,14 @@ irq_00:
       sta $d015
     }
     !skip:
-    lda #55                              // raster interrupt just a bit lower of the screen
-    sta $d012			     // turn sprites back on unless first time
-    lda #<irq_55
-    ldx #>irq_55
-    sta $FFFE
-    stx $FFFF 
   !skipmore:
+  
+  lda #55                              // raster interrupt just a bit lower of the screen
+  sta $d012			     // turn sprites back on unless first time
+  lda #<irq_55
+  ldx #>irq_55
+  sta $FFFE
+  stx $FFFF 
 	
   .if(DEBUG == 1){
     lda #0                                // Border and bkg to black
@@ -222,7 +210,7 @@ irq_55:
   lda #$01
   cmp yflags
   beq !skip+
-    ldx #%00000001  // sprites back on
+    ldx #%00000111  // sprites back on
     lda #$0
     cmp yloc
     bne !off+
@@ -235,7 +223,6 @@ irq_55:
     !off:
     stx $d015
   !skip:
-
 
   lda #249                              // raster interrupt pretty low of the screen
   sta $d012				// back to 24 columns
@@ -306,7 +293,7 @@ irq_249:
     lda #252	  	// switch sprites back on  .if below rasterline 252
     sbc yloc
     bcs !kill_only_top_sprites+
-      lda #%00000001
+      lda #%00000111
       sta $d015 
     !kill_only_top_sprites:
   }
@@ -334,6 +321,8 @@ irq_249:
     adc #$01
   overflow:
   sta $D001                           // Sprite position Y 
+  sta $D003                               // Set y for sprite 1
+  sta $D005                               // Set y for sprite 2
   !step:
 
   .if(DEBUG == 1){
@@ -370,7 +359,6 @@ flip_overflow:
     sta $d020
     sta $d021
   }
-
   rts
 
 flip_back:
@@ -392,45 +380,7 @@ flip_back:
     sta $d020
     sta $d021
   }
-
   rts
-
-irq_flex:
-  sta $02       // copy registers and acknowlege interupt
-  lda $DC0D
-  stx $03
-  sty $04
-
-  .if(DEBUG == 1){
-    lda #8                                // Border and bkg to red or something
-    sta $d020
-    sta $d021
-  }
-
-  lda #%00000001  // sprites back on
-  sta $d015
-
-  
-
-  lda #55                            
-  sta $d012                         
-  lda #<irq_55
-  ldx #>irq_55
-  sta $FFFE
-  stx $FFFF
-
-  .if(DEBUG == 1){
-    lda #0                                // Border and bkg to black
-    sta $d020
-    sta $d021
-  }
-  lda #$01  // copy registers back and Acknowledge raster interrup 
-  sta $D019
-  ldy $04
-  ldx $03
-  lda $02
-  rti  
-
 
 /*================================================================================
 ;
@@ -499,3 +449,52 @@ defeest_sprite0:
 .byte $00,$00,$05
 .byte $00,$00,$00
 .byte 0
+;// sprite1
+defeest_sprite1:
+.byte $55,$54,$00
+.byte $55,$55,$50
+.byte $55,$55,$54
+.byte $FF,$F5,$55
+.byte $FF,$FF,$D5
+.byte $FF,$FF,$FF
+.byte $FF,$FF,$FF
+.byte $5F,$FF,$FF
+.byte $5F,$FF,$FF
+.byte $7F,$FF,$FF
+.byte $5D,$75,$D7
+.byte $FD,$F7,$DF
+.byte $FD,$F7,$DF
+.byte $FD,$75,$D7
+.byte $FD,$F7,$DF
+.byte $FD,$F7,$DF
+.byte $FD,$F5,$D7
+.byte $7F,$FF,$FF
+.byte $55,$FF,$FF
+.byte $55,$55,$55
+.byte $00,$55,$55
+.byte 0
+;// sprite2
+defeest_sprite2:
+.byte $00,$00,$00
+.byte $00,$00,$00
+.byte $00,$00,$00
+.byte $40,$00,$00
+.byte $50,$00,$00
+.byte $55,$00,$00
+.byte $F5,$40,$00
+.byte $FD,$50,$00
+.byte $FF,$50,$00
+.byte $FF,$D4,$00
+.byte $D5,$75,$00
+.byte $7D,$F5,$00
+.byte $7D,$FD,$00
+.byte $5D,$FD,$00
+.byte $DD,$F5,$00
+.byte $DD,$F5,$00
+.byte $7D,$D4,$00
+.byte $FF,$50,$00
+.byte $55,$40,$00
+.byte $55,$00,$00
+.byte $40,$00,$00
+.byte 0
+
