@@ -8,10 +8,11 @@
 .const C_SCREEN_RAM        = C_SCREEN_BANK + $1800 // Screen Ram location
 
 // Tell the assembler where the SID is
-.var music = LoadSid("break-progress-03.sid")
+.var music = LoadSid("break-progress-04.sid")
 
 // Tell the assembler where the Koala file is
 .var picture = LoadBinary("Black_Hole_Milkyway.kla", BF_KOALA)
+
 *=C_SCREEN_RAM          "ScreenRam";      .fill picture.getScreenRamSize(), picture.getScreenRam(i)
 *=C_SCREEN_BANK + $1C00 "ColorRam:"; colorRam:  .fill picture.getColorRamSize(), picture.getColorRam(i)
 *=C_SCREEN_BANK + $2000 "Bitmap";       .fill picture.getBitmapSize(), picture.getBitmap(i)
@@ -658,7 +659,7 @@ wait_space:
 // Move on when needed--------------------------------------------------------------------------]
 // ---------------------------------------------------------------------------------------------]
 wait_timeout:	
-  lda #$50          // Time in seconds to time out
+  lda #$41          // Time in seconds to time out
   cmp $DD09
   bne !over+
     lda #$0C        // Kill main loop
@@ -679,7 +680,10 @@ setup_sid:
 
 infotext:                       // Scroller text
   // !convtab scr
-  .text "this sprite scroller will be a pain to combine with the pixel effect below, where do we get the raster time?? i don't know but we'll see i guess...... "
+  .text "some effects i code i would like to black hole, so i did. but after that i kind of liked the effect. "
+	.text "so here it is, reminding me of the goatse. "
+  .text "because it's one of my first pixel routines for the c64 it does 80 pixels and uses all the raster time. "
+  .text "good enough for now....                       "
   .byte $00                      // Terminator
 
 infotextpos:                    // Text pointer

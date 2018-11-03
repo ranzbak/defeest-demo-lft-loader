@@ -111,10 +111,7 @@ text:
   .text "                    "
   .text "                    "
   .byte $FF // back
-	.text " .hsinniF nrael dna msa nrael ot emit dnuof ohw "
-	.text " ,sniF eht tsael ton tub tsal dna stleb tuohtiw "
-	.text " elpoep hcsinaD eht ,sniF eht ,srelweK ot sgniteerG"
-  .text " .... "
+	.text ".neppah omed siht ekam ot redro ni enieffac dna sevil rieht evag sevael etam dna snaeb eeffoc evarB "
   .text "                    "
   .text "                    "
   .byte $FF // forward
@@ -122,7 +119,7 @@ text:
   .text "                    "
   .text "                    "
   .byte $FF // Backward
-	.text " ?teggunneh a eb si t'ndluohs ,ti ni sneh sah ylno teggunnekcihc a nehW"
+	.text " .stib naht reggib tib a setyb os ,etyb yreve ni tib a fo tib a si erehT"
   .text "                    "
   .text "                    "
   .byte $FF,0

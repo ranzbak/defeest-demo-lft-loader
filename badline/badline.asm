@@ -950,7 +950,7 @@ wait_timeout:
 	lda #$01
 	cmp $DD0A
 	bne !over+				// Minutes 
-  lda #$50          // Time in seconds to time out
+  lda #$52          // Time in seconds to time out
   cmp $DD09
   bne !over+				// Seconds 
     lda #$0C        // Kill main loop
@@ -980,12 +980,13 @@ footer_text:
   .text "=-=-=-=-=> defeest logo above <=-=-=-=-="
   .byte 0
 scroller_message:
+  .text "      --==defeest==--     "
   .text "floating flamingo cup holders, game of beer pong, champagne bottle pool float, a giant f#@%ing tote, a schnoodle, waterproof phone case. "
-  .text "greetings to revspace, frack, lag, hack42, bitlair, nurdspace, tkkrlab and ijhack. "
+	.text "these random things we found on ebay, left us with the question, what are schnoodles and totes?. "
+  .text "greetings to subversive elements, infinite monkeys revspace, frack, lag, hack42, bitlair, nurdspace, tkkrlab and ijhack. "
   .text "also geraffel, mononoke, websmurf and last but not least je moeder. "
   .text "this demo was made possible by reichsoverheid.nl and is powered by hoe.re. "
-  .text "did you know techinc has cameras in the building? "
-  .text "daar in dat kleine cafe op de 5e daar zijn de mensen gelijk en tervree etv! ..... "
+	.text "                                "
   .byte $ff   // EOF
 
 // Data
