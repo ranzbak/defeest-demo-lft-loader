@@ -26,15 +26,17 @@ defeest-intro/defeest-anoy3.sid      1000 7e
 #
 # Memory Map
 # ----------
-# $2000-$2b30 Main Program
+# $1000-$144e Music
+# $2000-$2b26 Main Program
 # $4c00-$4fe7 ScreenRam
 # $5c00-$5fe7 ColorRam:
 # $6000-$7f3f Bitmap
 #
-badline/badline.prg                 2000 2 c00
-badline/badline.prg                 4C00 2C02 3E8
-badline/badline.prg                 5C00 3C02 3E8
-badline/badline.prg                 6000 4002 1F41
+badline/badline.prg                 1000 2 500
+badline/badline.prg                 2000 1002 1b26
+badline/badline.prg                 4c00 3c02 3e7
+badline/badline.prg                 5c00 4c02 3e7
+badline/badline.prg                 6000 5002 1f3f
 
 # Memory Map
 # ----------
@@ -62,9 +64,43 @@ hborder/hborder.prg		  4400 2802 3e7
 hborder/hborder.prg		  6000 4402 1f3f
 hborder/hborder.prg		  8000 6402 bf
 
-# The-end
+# Credits DJ Music
 # Memory Map
 # ----------
+# $2000-$20da Main Program
+# $5800-$5be7 ScreenRam
+# $5c00-$5fe7 ColorRam:
+# $6000-$7f3f Bitmap
+credits/dj-music.prg  2000 2 da
+credits/dj-music.prg  5800 3802 3e7
+credits/dj-music.prg  5c00 3c02 3e7
+credits/dj-music.prg  6000 4002 1f3f
+
+# Credits DJ Music
+# Memory Map
+# ----------
+# $2000-$20da Main Program
+# $5800-$5be7 ScreenRam
+# $5c00-$5fe7 ColorRam:
+# $6000-$7f3f Bitmap
+credits/party-beest.prg  2000 2 da
+credits/party-beest.prg  5800 3802 3e7
+credits/party-beest.prg  5c00 3c02 3e7
+credits/party-beest.prg  6000 4002 1f3f
+
+# Credits DJ Music
+# Memory Map
+# ----------
+# $2000-$20da Main Program
+# $5800-$5be7 ScreenRam
+# $5c00-$5fe7 ColorRam:
+# $6000-$7f3f Bitmap
+credits/look-ahead.prg  2000 2 da
+credits/look-ahead.prg  5800 3802 3e7
+credits/look-ahead.prg  5c00 3c02 3e7
+credits/look-ahead.prg  6000 4002 1f3f
+
+# The-end
 # Memory Map
 # ----------
 # $0800-$0be7 ScreenRam

@@ -45,11 +45,14 @@ build_kickasm badline/badline
 build_kickasm hborder/hborder
 build_kickasm the-end/the-end
 build_kickasm sinusstuff/sinusstuff
+build_kickasm credits/dj-music
+build_kickasm credits/party-beest
+build_kickasm credits/look-ahead
 
 # Build plasma effect
-pushd ecmplasma
-make all
-popd
+#pushd ecmplasma
+#make all
+#popd
 
 # Build new image
 ../spindle/spin -vv -o disk.d64 script 

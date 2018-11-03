@@ -9,6 +9,9 @@
 // Raster debug ?
 .const DEBUG = 0
 
+// Get the music
+.var music = LoadSid("./kleuter-dinges.sid")
+
 //BasicUpstart2(begin)        // <- This creates a basic sys line that can start your program
 
 // common register definitions
@@ -184,6 +187,9 @@ begin:
 	sta $DD09 // Set minutes
 	sta $DD08 // Set hours and start timer
 
+	// Setup the SID track
+	jsr setup_sid
+
   cli
 
   // Wait for space for exit
@@ -198,6 +204,10 @@ main_loop: jmp *
 //	sta REG_INTSERVICE_HIGH
 //	cli
 //main_loop_fade: jmp *
+
+	// Silence SID
+	lda #$00
+	sta $d418
 
   // Back to normal text screen
 	sei
@@ -700,6 +710,8 @@ update_logo_fld_done:
   sty $D02D
   sty $D02E
 
+	// Update the SID playing
+	jsr music.play
 
 .if (DEBUG==1) {
   lda #$00
@@ -958,7 +970,14 @@ wait_timeout:
 !over:
 	rts
 
-
+// Setup SID file-------------------------------------------------------------------------------]
+// ---------------------------------------------------------------------------------------------]
+setup_sid:	
+	ldx #0
+	ldy #0
+	lda #music.startSong-1
+	jsr music.init
+	rts
 
 // Variables -----------------------------------------------------------------------------------]
 // ---------------------------------------------------------------------------------------------]
@@ -1076,3 +1095,6 @@ font_data:
   .byte $ee, $ee, $ee, $00, $00, $00, $00, $00, $ee, $ee, $ee, $00, $0e, $0e, $0e, $00
   .byte $ee, $ee, $ee, $00, $e0, $e0, $e0, $00, $ee, $ee, $ee, $00, $ee, $ee, $ee, $00
 
+// Place the SID file into memory
+* = music.location "Music"
+.fill music.size, music.getData(i)

@@ -7,7 +7,7 @@
 .const MEMSETREG = $D018 // VIC memory layout register
 .const RESET     = $FFFC
 // Counter
-*=$C100 "Data"
+*=$C110 "Data"
 charcnt: .byte 0   // String position
 scrcnt:  .byte 0   // Screen position
 wcnt:    .byte 0   // Word count
@@ -148,6 +148,33 @@ rolloop:
 	clc
 
 	// Hborder
+	jsr $2000
+
+	lda #$00
+	sta $d011	// screen off
+
+	// DJ-music
+	cli
+	jsr $c90
+	clc
+	jsr $2000
+
+	lda #$00
+	sta $d011	// screen off
+
+	// Feest-beest
+	cli
+	jsr $c90
+	clc
+	jsr $2000
+
+	lda #$00
+	sta $d011	// screen off
+
+	// Look-ahead
+	cli
+	jsr $c90
+	clc
 	jsr $2000
 
 	lda #$00
