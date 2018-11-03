@@ -134,6 +134,17 @@ begin:
     cpx #63
   bne !loop-
 
+
+        // Set the TOD timer to 00:00:00 AM
+        lda #%00000000 // Set time of day
+        sta $DD0F
+        lda #$00
+        sta $DD0B // Set tenth of seconds and stop timer 
+        sta $DD0A // Set seconds
+        sta $DD09 // Set minutes
+        sta $DD08 // Set hours and start timer
+
+
   lda #252                      // Set raster line to interrupt on
   sta $d012
   lda #<irq_252  // Switch to 25 columns 
@@ -341,6 +352,7 @@ irq_248:
   }
 
   jsr wait_space
+  jsr wait_timeout
 
   clc
   inc yloc // increment y pos
@@ -420,6 +432,19 @@ wait_space:
         sta main_loop
 !over:
         rts
+
+
+// Move on when needed--------------------------------------------------------------------------]
+// ---------------------------------------------------------------------------------------------]
+wait_timeout:
+  lda #10          // Time in seconds to time out
+  cmp $DD09
+  bne !over+                            // Seconds 
+    lda #$0C        // Kill main loop
+    sta main_loop
+!over:
+        rts
+
 
 // variables
 yloc: .byte $00, $00
