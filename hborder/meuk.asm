@@ -72,11 +72,11 @@ begin:
   sta $D01B       // Sprites in front
 
   ldx #0                                // Copy sprite into sprite memory
-!loop:
-  lda defeest_sprite0, x
-  sta $0340+VIC_BANK, x
-  inx
-  cpx #63
+  !loop:
+    lda defeest_sprite0, x
+    sta $0340+VIC_BANK, x
+    inx
+    cpx #63
   bne !loop-
   cli
 
@@ -104,6 +104,8 @@ irq_252:
   lda $d011                             // Set bit 3 to enable 25 line mode
   ora #%00001000
   sta $d011
+
+  jsr flip_back 
 
   lda #00                       // raster interrupt at the end of the screen
   sta $d012			// which disables bottom sprites
@@ -135,17 +137,55 @@ irq_00:
     sta $d020
     sta $d021
   }
-  .if(KEEP_SPRITES == 0){
-    lda #$00              // Disable sprites 
-    sta $d015
-  }
 
-  lda #55                              // raster interrupt just a bit lower of the screen
-  sta $d012			     // turn sprites back on unless first time
-  lda #<irq_55
-  ldx #>irq_55
-  sta $FFFE
-  stx $FFFF
+  lda #$01
+  cmp yflags		// yflags is $01
+  bne !skipmore+
+    clc
+    lda #$20
+    sbc yloc	
+    bcs !skip+
+      clc
+      lda #$38
+      sbc yloc
+      bcc !skip+
+        clc			// just in case
+        lda yloc
+        sbc #$19
+        sta flipline
+        sta $d012                // turn sprites back on  from flipline      
+        lda #<irq_1to19
+        ldx #>irq_1to19
+        sta $FFFE
+        stx $FFFF
+        jmp !skipmore+
+    !skip:
+    lda #55                              // raster interrupt just a bit lower of the screen
+    sta $d012                        // turn sprites back on unless first time
+    lda #<irq_55
+    ldx #>irq_55
+    sta $FFFE
+    stx $FFFF
+  !skipmore:
+
+  lda #$01
+  cmp yflags
+  beq !skip+
+    lda yloc
+    sbc #$45
+    bcs !skip+
+    .if(KEEP_SPRITES == 0){
+      lda #$00              // Disable sprites 
+      sta $d015
+    }
+    !skip:
+    lda #55                              // raster interrupt just a bit lower of the screen
+    sta $d012			     // turn sprites back on unless first time
+    lda #<irq_55
+    ldx #>irq_55
+    sta $FFFE
+    stx $FFFF
+  !skip:
 	
   .if(DEBUG == 1){
     lda #0                                // Border and bkg to black
@@ -170,16 +210,39 @@ irq_55:
     sta $d020
     sta $d021
   }
-  lda #%00000001  // sprites back on
-  sta $d015
- 	
+
+  lda #$01
+  cmp yflags
+  beq !skip+
+    ldx #%00000001  // sprites back on
+    lda #$0
+    cmp yloc
+    bne !off+
+      ldx $0
+    !off:
+    lda #$1
+    cmp yloc
+    bne !off+
+      ldx $0
+    !off:
+    stx $d015
+  !skip:
+
+
   lda #249                              // raster interrupt pretty low of the screen
   sta $d012				// back to 24 columns
   lda #<irq_249
   ldx #>irq_249
   sta $FFFE
   stx $FFFF
-  
+ 
+  // if yloc also 55 . . 
+  lda #55         
+  cmp yloc
+  bne !skip+	// we need to reset the sprite location and set a flag
+    jsr flip_overflow
+  !skip:
+ 
   .if(DEBUG == 1){
     lda #0                                // Border and bkg to black 
     sta $d020
@@ -189,6 +252,16 @@ irq_55:
     jsr binhex
     sta $0400       // counter msn to screen
     stx $0401       // counter lsm to screen
+    
+    lda yflags
+    jsr binhex
+    sta $0403       // counter msn to screen
+    stx $0404       // counter lsm to screen
+
+    lda flipline
+    jsr binhex
+    sta $0406       // counter msn to screen
+    stx $0407       // counter lsm to screen
   }
   lda #$01  // copy registers back and Acknowledge raster interrup 
   sta $D019
@@ -231,6 +304,7 @@ irq_249:
   }
 
   .if(STEP_THROUGH == 1){
+    clc
     ldx #$FD        // setup kbd matrix
     stx $DC00
     lda $dc01       // read kbd matrix 
@@ -245,11 +319,8 @@ irq_249:
     adc #$01
   overflow:
   sta $D001                           // Sprite position Y 
-
-  // if yloc 37 -> do magic
-  
- 
   !step:
+
   .if(DEBUG == 1){
     lda #0                                // Border and bkg to black
     sta $d020
@@ -261,6 +332,87 @@ irq_249:
   ldx $03
   lda $02
   rti
+
+flip_overflow:
+  .if(DEBUG == 1){
+    lda #3                                // Border and bkg to red or something
+    sta $d020
+    sta $d021
+  }
+
+  lda #$01
+  cmp yflags
+  beq !skip+ 
+    lda #$01
+    sta yflags
+
+    lda #0            // y location "back" to 0 
+    sta yloc
+  !skip:
+
+  .if(DEBUG == 1){
+    lda #0                                // Border and bkg to black
+    sta $d020
+    sta $d021
+  }
+
+  rts
+
+flip_back:
+  .if(DEBUG == 1){
+    lda #2                                // Border and bkg to red or something
+    sta $d020
+    sta $d021
+  }
+
+  lda #97		// On yloc 55+42 ?
+  cmp yloc
+  bne !skip+
+    lda #$00
+    sta yflags
+  !skip:
+
+  .if(DEBUG == 1){
+    lda #0                                // Border and bkg to black
+    sta $d020
+    sta $d021
+  }
+
+  rts
+
+irq_1to19:
+  sta $02       // copy registers and acknowlege interupt
+  lda $DC0D
+  stx $03
+  sty $04
+
+  .if(DEBUG == 1){
+    lda #8                                // Border and bkg to red or something
+    sta $d020
+    sta $d021
+  }
+
+  lda #%00000001  // sprites back on
+  sta $d015
+
+  lda #55                            
+  sta $d012                         
+  lda #<irq_55
+  ldx #>irq_55
+  sta $FFFE
+  stx $FFFF
+
+  .if(DEBUG == 1){
+    lda #0                                // Border and bkg to black
+    sta $d020
+    sta $d021
+  }
+  lda #$01  // copy registers back and Acknowledge raster interrup 
+  sta $D019
+  ldy $04
+  ldx $03
+  lda $02
+  rti  
 
 
 /*================================================================================
@@ -303,7 +455,8 @@ finalize_nybble:
 
 // variables
 yloc: .byte $00, $00
-
+yflags: .byte $00
+flipline: .byte $00
  
 ;// sprite0
 defeest_sprite0:

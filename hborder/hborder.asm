@@ -6,8 +6,8 @@
 
 .const DEBUG = 1
 .const INTERUPT = 0
-.const KEEP_SPRITES = 0
-.const SKIP_JUMP = 1
+.const KEEP_SPRITES = 1
+.const SKIP_JUMP = 0
 
 // Main
 begin:
@@ -248,7 +248,7 @@ irq_24:
         bne !over+      // step through version
 }
         clc
-        lda #$252
+        lda #252
         sbc yloc
         bcs !kill_top_sprites+
 .if(KEEP_SPRITES == 0) {
@@ -268,12 +268,12 @@ overflow:
 	cmp yflag
 	beq !skip+
 	
-	lda #$30		// on 30 on y
+	lda #37		// on 30 on y
 	cmp yloc
 	bne !skip+
 	jsr flip_overflow
 !skip:
-	lda #$72		// on 72 on y
+	lda #79		// on 72 on y
 	cmp yloc
 	bne !skip+
 	jsr flip_back
