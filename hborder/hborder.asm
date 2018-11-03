@@ -125,27 +125,14 @@ begin:
     inx
     cpx #63
   bne !loop-
-  cli
 
-!loop:
-  lda #$0
-  sta VIC_OFFSET + $800, x
-  sta VIC_OFFSET + $800 + 64, x
-  inx
-  cpx #63
+  !loop:
+    lda #$0
+    sta VIC_OFFSET + $800, x
+    sta VIC_OFFSET + $800 + 64, x
+    inx
+    cpx #63
   bne !loop-
-
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
 
   lda #252                      // Set raster line to interrupt on
   sta $d012
@@ -153,6 +140,8 @@ begin:
   sta $FFFE
   lda #>irq_252
   sta $FFFF
+
+  cli
 
 main_loop:
   jmp *                                 // Endless loop
@@ -176,7 +165,7 @@ irq_252:
   lda #00                       // raster interrupt at the end of the screen
   sta $d012			// which disables bottom sprites
   lda #<irq_00
-  ldx #>irq_00
+  ldx #>irq_00 
   sta $FFFE
   stx $FFFF
 
@@ -213,7 +202,7 @@ irq_00:
 
   lda #$01
   cmp yflags
-  beq !skipmore+
+  beq !skip+
     lda yloc
     sbc #$45
     bcs !skip+
@@ -221,8 +210,7 @@ irq_00:
       lda #$00              // Disable sprites 
       sta $d015
     }
-    !skip:
-  !skipmore:
+  !skip:
   
   lda #55                              // raster interrupt just a bit lower of the screen
   sta $d012			     // turn sprites back on unless first time
@@ -278,8 +266,8 @@ irq_55:
 
   lda #248                              // raster interrupt pretty low of the screen
   sta $d012				// back to 24 columns
-  lda #<irq_249
-  ldx #>irq_249
+  lda #<irq_248
+  ldx #>irq_248
   sta $FFFE
   stx $FFFF
  
@@ -303,7 +291,7 @@ irq_55:
   lda $02
   rti
 
-irq_249:
+irq_248:
   sta $02       // copy registers and acknowlege interupt
   lda $DC0D
   stx $03
