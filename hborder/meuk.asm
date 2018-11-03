@@ -141,21 +141,29 @@ irq_00:
   lda #$01
   cmp yflags		// yflags is $01
   bne !skipmore+
+    lda #%0000001
+    sta $d015
     clc
-    lda #$20
+    lda #$0
     sbc yloc	
     bcs !skip+
       clc
-      lda #$38
+      lda #$18
       sbc yloc
       bcc !skip+
-        clc			// just in case
-        lda yloc
-        sbc #$19
+        .if(KEEP_SPRITES == 0){
+          //lda #$00              // Disable sprites 
+          //sta $d015
+        }
+     //   clc			// just in case
+     //   lda yloc
+     //   sbc #$19	// way way wayyyyy lower
+     //   adc #230
+        lda #55
         sta flipline
         sta $d012                // turn sprites back on  from flipline      
-        lda #<irq_1to19
-        ldx #>irq_1to19
+        lda #<irq_55
+        ldx #>irq_55
         sta $FFFE
         stx $FFFF
         jmp !skipmore+
@@ -165,12 +173,12 @@ irq_00:
     lda #<irq_55
     ldx #>irq_55
     sta $FFFE
-    stx $FFFF
+    stx $FFFF 
   !skipmore:
 
   lda #$01
   cmp yflags
-  beq !skip+
+  beq !skipmore+
     lda yloc
     sbc #$45
     bcs !skip+
@@ -184,8 +192,8 @@ irq_00:
     lda #<irq_55
     ldx #>irq_55
     sta $FFFE
-    stx $FFFF
-  !skip:
+    stx $FFFF 
+  !skipmore:
 	
   .if(DEBUG == 1){
     lda #0                                // Border and bkg to black
@@ -303,6 +311,13 @@ irq_249:
     !kill_only_top_sprites:
   }
 
+  clc
+  lda yflags
+  beq !skip+
+    lda #$0
+    sta $d015
+  !skip: 
+
   .if(STEP_THROUGH == 1){
     clc
     ldx #$FD        // setup kbd matrix
@@ -380,7 +395,7 @@ flip_back:
 
   rts
 
-irq_1to19:
+irq_flex:
   sta $02       // copy registers and acknowlege interupt
   lda $DC0D
   stx $03
@@ -394,6 +409,8 @@ irq_1to19:
 
   lda #%00000001  // sprites back on
   sta $d015
+
+  
 
   lda #55                            
   sta $d012                         

@@ -1,10 +1,10 @@
 //BasicUpstart2(begin)                            // <- This creates a basic sys line that can start your program
 
-.var picture = LoadBinary("./p01.kla", BF_KOALA)
+.var picture = LoadBinary("./anus.kla", BF_KOALA)
 
 * = $2000 "Horizontal drop"    // <- The name 'Main program' will appear in the memory map when assembling   jsr clear
 
-.const DEBUG = 1
+.const DEBUG = 0
 .const INTERUPT = 0
 .const KEEP_SPRITES = 1
 .const SKIP_JUMP = 0
