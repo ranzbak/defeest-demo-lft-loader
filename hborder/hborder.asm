@@ -9,6 +9,9 @@
 .const RASTER_DEBUG = 0
 .const STEP_THROUGH = 0
 
+// Tell the assembler where the SID is
+.var music = LoadSid("spyvsdefeest.sid")
+
 // Main
 begin:
   sei                                           // Disable interrupts
@@ -61,6 +64,12 @@ begin:
 
 //  lda #3
 //  sta $dbe7 
+
+	// Init SID
+	ldx #0
+	ldy #0
+	lda #music.startSong-1
+	jsr music.init
 
   lda #$1a
   sta $4400 + $7f8
@@ -294,12 +303,17 @@ irq_55:
     sta $d020
     sta $d021
   }
+
+	// SID
+	jsr music.play
   
   lda #$01  // copy registers back and Acknowledge raster interrup 
   sta $D019
   ldy $04
   ldx $03
   lda $02
+
+
   rti
 
 irq_248:
@@ -534,3 +548,6 @@ defeest_sprite2:
 .print "ScreenRam="+picture.getScreenRamSize()+","+picture.getScreenRam(0)
 .print "Koala format="+BF_KOALA
 
+// Place the SID file into memory
+* = music.location "Music"
+.fill music.size, music.getData(i)

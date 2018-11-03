@@ -53,17 +53,20 @@ sinusstuff/sinusstuff.prg           5800 4802 3e7
 sinusstuff/sinusstuff.prg           5c00 4C02 3e7
 sinusstuff/sinusstuff.prg           6000 5002 1f3f
 
+# Memory Map
+# ----------
+# $1000-$1439 Music
 # $1c00-$1fe7 ColorRam:
-# $2000-$2262 Horizontal drop
+# $2000-$2260 Horizontal drop
 # $4400-$47e7 ScreenRam
 # $6000-$7f3f Bitmap
 # $8000-$80bf Sprite
-#
-hborder/hborder.prg		  1c00 2 3e7 
-hborder/hborder.prg		  2000 402 500
-hborder/hborder.prg		  4400 2802 3e7
-hborder/hborder.prg		  6000 4402 1f3f
-hborder/hborder.prg		  8000 6402 bf
+hborder/hborder.prg     1000 2   500
+hborder/hborder.prg		  1c00 c02 3e7 
+hborder/hborder.prg		  2000 1002 500
+hborder/hborder.prg		  4400 3402 3e7
+hborder/hborder.prg		  6000 5002 1f3f
+hborder/hborder.prg		  8000 7002 bf
 
 # Credits DJ Music
 # Memory Map
