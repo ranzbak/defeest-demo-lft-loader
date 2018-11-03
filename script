@@ -78,7 +78,7 @@ credits/dj-music.prg  5800 3802 3e7
 credits/dj-music.prg  5c00 3c02 3e7
 credits/dj-music.prg  6000 4002 1f3f
 
-# Credits DJ Music
+# Credits party-beest
 # Memory Map
 # ----------
 # $2000-$20da Main Program
@@ -90,7 +90,7 @@ credits/party-beest.prg  5800 3802 3e7
 credits/party-beest.prg  5c00 3c02 3e7
 credits/party-beest.prg  6000 4002 1f3f
 
-# Credits DJ Music
+# Credits Look ahead
 # Memory Map
 # ----------
 # $2000-$20da Main Program
