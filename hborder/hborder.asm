@@ -451,7 +451,7 @@ wait_space:
 // Move on when needed--------------------------------------------------------------------------]
 // ---------------------------------------------------------------------------------------------]
 wait_timeout:
-  lda #10          // Time in seconds to time out
+  lda #$16          // Time in seconds to time out
   cmp $DD09
   bne !over+                            // Seconds 
     lda #$0C        // Kill main loop
